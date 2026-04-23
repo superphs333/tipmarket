@@ -41,12 +41,9 @@ class FindOrCreateSocialUser
                 ->where('provider_user_id', $socialUser->getId())
                 ->first();
 
-            // 이미 연결된 소셜 계정이 있으면 -> 토큰/메타 정보만 갱신하고 해당 user를 반환
+            // 이미 연결된 소셜 계정이 있으면 -> 토큰 정보만 갱신하고 해당 user를 반환
             if ($socialAccount) {
                 $socialAccount->forceFill([
-                    'email' => $email,
-                    'nickname' => $socialUser->getNickname(),
-                    'raw_profile' => method_exists($socialUser, 'getRaw') ? $socialUser->getRaw() : null,
                     'access_token' => $socialUser->token ?? $socialAccount->access_token,
                     'refresh_token' => $socialUser->refreshToken ?? $socialAccount->refresh_token,
                     'token_expires_at' => isset($socialUser->expiresIn)
@@ -75,9 +72,6 @@ class FindOrCreateSocialUser
             $user->socialAccounts()->create([
                 'provider' => $provider->value,
                 'provider_user_id' => $socialUser->getId(),
-                'email' => $email,
-                'nickname' => $socialUser->getNickname(),
-                'raw_profile' => method_exists($socialUser, 'getRaw') ? $socialUser->getRaw() : null,
                 'access_token' => $socialUser->token ?? null,
                 'refresh_token' => $socialUser->refreshToken ?? null,
                 'token_expires_at' => isset($socialUser->expiresIn)
