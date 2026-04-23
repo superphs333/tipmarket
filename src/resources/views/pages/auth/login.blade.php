@@ -49,7 +49,7 @@
             </div>
         </form>
 
-        <flux:button href="{{ url('/auth/google') }}" variant="outline" class="w-full">
+        <flux:button href="{{ route('social.redirect', 'google') }}" variant="outline" class="w-full">
             Google로 로그인
         </flux:button>
 
