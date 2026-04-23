@@ -1,0 +1,20 @@
+{
+  "Log in": "로그인",
+  "Log in to your account": "계정에 로그인",
+  "Enter your email and password below to log in": "이메일과 비밀번호를 입력해 로그인하세요",
+  "Email address": "이메일 주소",
+  "Password": "비밀번호",
+  "Forgot your password?": "비밀번호를 잊으셨나요?",
+  "Remember me": "로그인 상태 유지",
+  "Don't have an account?": "계정이 없으신가요?",
+  "Sign up": "회원가입",
+
+  "Register": "회원가입",
+  "Create an account": "계정 만들기",
+  "Enter your details below to create your account": "가입 정보를 입력해 계정을 만드세요",
+  "Name": "이름",
+  "Full name": "이름",
+  "Confirm password": "비밀번호 확인",
+  "Create account": "회원가입",
+  "Already have an account?": "이미 계정이 있으신가요?"
+}
