@@ -5,6 +5,12 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
+        @if (session('auth_error'))
+            <div class="text-sm font-medium text-center text-red-600">
+                {{ session('auth_error') }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
             @csrf
 
@@ -49,9 +55,15 @@
             </div>
         </form>
 
-        <flux:button href="{{ route('social.redirect', 'google') }}" variant="outline" class="w-full">
-            Google로 로그인
-        </flux:button>
+        <div class="flex flex-col gap-3">
+            <flux:button href="{{ route('social.redirect', 'google') }}" variant="outline" class="w-full">
+                Google로 로그인
+            </flux:button>
+
+            <flux:button href="{{ route('social.redirect', 'kakao') }}" variant="outline" class="w-full">
+                카카오로 로그인
+            </flux:button>
+        </div>
 
         @if (Route::has('register'))
             <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
