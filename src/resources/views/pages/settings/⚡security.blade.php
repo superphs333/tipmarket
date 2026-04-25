@@ -8,10 +8,9 @@ use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Livewire\Attributes\On;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Security settings')] class extends Component {
+new class extends Component {
     use PasswordValidationRules;
 
     public string $current_password = '';
@@ -83,6 +82,11 @@ new #[Title('Security settings')] class extends Component {
         $disableTwoFactorAuthentication(auth()->user());
 
         $this->twoFactorEnabled = false;
+    }
+
+    public function render()
+    {
+        return $this->view()->title(__('Security settings'));
     }
 }; ?>
 

@@ -5,10 +5,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Profile settings')] class extends Component {
+new class extends Component {
     use ProfileValidationRules;
 
     public string $name = '';
@@ -72,6 +71,11 @@ new #[Title('Profile settings')] class extends Component {
     {
         return ! Auth::user() instanceof MustVerifyEmail
             || (Auth::user() instanceof MustVerifyEmail && Auth::user()->hasVerifiedEmail());
+    }
+
+    public function render()
+    {
+        return $this->view()->title(__('Profile settings'));
     }
 }; ?>
 
