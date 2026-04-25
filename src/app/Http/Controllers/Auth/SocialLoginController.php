@@ -21,11 +21,12 @@ class SocialLoginController extends Controller
      */
     public function redirect(string $provider)
     {
-        $provider = SocialProvider::fromRoute($provider);
-        $driver = Socialite::driver($provider->value);
-        $origin = url()->previous();
+        $provider = SocialProvider::fromRoute($provider); // 유효값인지 보장
+        $driver = Socialite::driver($provider->value); // provider용 Socialite 드라이버 가져옴
+        $origin = url()->previous(); // 소셜 로그인 버튼을 누르기 전 직전 페이지 기넉
         $originHost = parse_url($origin, PHP_URL_HOST);
 
+        // 같은 사이트 내부 페이지일 때만 세션에 저장
         if (is_string($origin) && ($originHost === null || $originHost === request()->getHost())) {
             request()->session()->put('social_auth_origin', $origin);
         }
@@ -54,13 +55,13 @@ class SocialLoginController extends Controller
         ResolvePostLoginRedirect $resolvePostLoginRedirect,
     )
     {
-        $provider = SocialProvider::fromRoute($provider);
+        $provider = SocialProvider::fromRoute($provider); // provider문자열을 다시 enum으로 변환
         $providerLabel = $this->providerLabel($provider);
-        $driver = Socialite::driver($provider->value);
+        $driver = Socialite::driver($provider->value); // provider용 Socialite 드라이버 준비 
         $origin = request()->session()->pull('social_auth_origin', route('login'));
 
         try {
-            $socialUser = $driver->user();
+            $socialUser = $driver->user(); // 정보 받아오기
 
             // user 정보 
             $user = $findOrCreateSocialUser->handle($provider, $socialUser);
@@ -71,6 +72,7 @@ class SocialLoginController extends Controller
             // 세션 ID 재생성 (보안)
             request()->session()->regenerate();
 
+            // 리다이렉트 
             return redirect()->to($resolvePostLoginRedirect->handle(request(), $origin));
         } catch (InvalidStateException $exception) {
             return redirect()->to($origin)->with('auth_error', "{$providerLabel} 로그인 세션이 만료되었거나 검증에 실패했습니다. 다시 시도해 주세요.");

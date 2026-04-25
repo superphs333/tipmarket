@@ -4,13 +4,18 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Http\Responses\Auth\LoginResponse;
+use App\Http\Responses\Auth\TwoFactorLoginResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
 
+// Fortify 인증 관련 설정을 한 군데서 묶어서 등록
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
@@ -18,7 +23,12 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Fortify가 일반 로그인 성공 응답을 만들 때 
+        // 기본 LoginResponse 대신 커스텀 LoginResponse를 쓰도록 바꿈.
+        $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+
+        // Fortify가 2차 인증 완료 후 응답을 만들 때 커스텀 클래스를 쓰도록 바꿈 
+        $this->app->singleton(TwoFactorLoginResponseContract::class, TwoFactorLoginResponse::class);
     }
 
     /**
