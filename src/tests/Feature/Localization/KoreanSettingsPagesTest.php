@@ -28,7 +28,10 @@ class KoreanSettingsPagesTest extends TestCase
             ->assertOk()
             ->assertSee('프로필 설정 -', false)
             ->assertSee('프로필과 계정 설정을 관리하세요')
-            ->assertSee('이름과 이메일 주소를 수정하세요');
+            ->assertSee('프로필 이미지')
+            ->assertSee('프로필 이미지, 이름, 이메일 주소를 수정하세요')
+            ->assertSee('이미지 선택')
+            ->assertSee('선택된 파일 없음');
     }
 
     public function test_confirm_password_page_renders_in_korean(): void
