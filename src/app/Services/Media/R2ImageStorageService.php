@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
-use Throwable;
 
 /**
  * Cloudflare R2에 이미지 파일을 저장/삭제/조회하기 위한 전용 서비스 
@@ -103,7 +102,7 @@ class R2ImageStorageService
                 ->timeout(10)
                 ->accept('image/*')
                 ->get($url);
-        } catch (Throwable) {
+        } catch (\Throwable) {
             return null;
         }
 
