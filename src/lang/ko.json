@@ -35,6 +35,10 @@
   "PNG, JPG, WEBP files are allowed and can be uploaded up to 2MB.": "PNG, JPG, WEBP 파일만 가능하며 최대 2MB까지 업로드할 수 있습니다.",
   "Save": "저장",
   "Profile updated.": "프로필이 업데이트되었습니다.",
+  "Profile image updated.": "프로필 이미지가 업데이트되었습니다.",
+  "Profile image deleted.": "프로필 이미지가 삭제되었습니다.",
+  "Failed to upload profile image.": "프로필 이미지를 업로드하지 못했습니다.",
+  "Failed to delete profile image.": "프로필 이미지를 삭제하지 못했습니다.",
   "A new verification link has been sent to your email address.": "이메일 주소로 새 인증 링크를 보냈습니다.",
 
   "Delete account": "계정 삭제",

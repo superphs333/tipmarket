@@ -1,21 +1,32 @@
 <?php
 
 return [
-    'required' => ':attribute 항목은 필수입니다.',
-    'string' => ':attribute 항목은 문자열이어야 합니다.',
-    'email' => ':attribute 항목은 올바른 이메일 주소여야 합니다.',
+    'accepted' => ':attribute 항목을 동의해야 합니다.',
+    'array' => ':attribute 항목은 배열이어야 합니다.',
+    'boolean' => ':attribute 항목은 참 또는 거짓 값이어야 합니다.',
     'confirmed' => ':attribute 확인이 일치하지 않습니다.',
     'current_password' => '비밀번호가 올바르지 않습니다.',
-    'unique' => '이미 사용 중인 :attribute입니다.',
+    'date' => ':attribute 항목은 올바른 날짜여야 합니다.',
+    'email' => ':attribute 항목은 올바른 이메일 주소여야 합니다.',
+    'file' => ':attribute 항목은 파일이어야 합니다.',
+    'image' => ':attribute 항목은 이미지 파일이어야 합니다.',
+    'integer' => ':attribute 항목은 정수여야 합니다.',
+    'in' => '선택한 :attribute 항목이 올바르지 않습니다.',
     'max' => [
+        'array' => ':attribute 항목은 :max개를 초과할 수 없습니다.',
+        'file' => ':attribute 항목은 :maxKB를 초과할 수 없습니다.',
+        'numeric' => ':attribute 항목은 :max보다 클 수 없습니다.',
         'string' => ':attribute 항목은 :max자를 초과할 수 없습니다.',
     ],
+    'mimes' => ':attribute 항목은 다음 형식의 파일이어야 합니다: :values.',
+    'mimetypes' => ':attribute 항목은 다음 형식의 파일이어야 합니다: :values.',
     'min' => [
+        'array' => ':attribute 항목은 최소 :min개 이상이어야 합니다.',
+        'file' => ':attribute 항목은 최소 :minKB 이상이어야 합니다.',
+        'numeric' => ':attribute 항목은 최소 :min 이상이어야 합니다.',
         'string' => ':attribute 항목은 최소 :min자여야 합니다.',
     ],
-    'size' => [
-        'string' => ':attribute 항목은 정확히 :size자여야 합니다.',
-    ],
+    'numeric' => ':attribute 항목은 숫자여야 합니다.',
     'password' => [
         'letters' => ':attribute 항목에는 영문자가 최소 1자 이상 포함되어야 합니다.',
         'mixed' => ':attribute 항목에는 대문자와 소문자가 각각 1자 이상 포함되어야 합니다.',
@@ -23,6 +34,29 @@ return [
         'symbols' => ':attribute 항목에는 기호가 최소 1자 이상 포함되어야 합니다.',
         'uncompromised' => '유출 이력이 있는 :attribute는 사용할 수 없습니다. 다른 :attribute를 선택해 주세요.',
     ],
+    'regex' => ':attribute 항목 형식이 올바르지 않습니다.',
+    'required' => ':attribute 항목은 필수입니다.',
+    'required_if' => ':other 항목이 :value일 때 :attribute 항목은 필수입니다.',
+    'same' => ':attribute 항목과 :other 항목이 일치해야 합니다.',
+    'size' => [
+        'array' => ':attribute 항목은 :size개여야 합니다.',
+        'file' => ':attribute 항목은 :sizeKB여야 합니다.',
+        'numeric' => ':attribute 항목은 :size여야 합니다.',
+        'string' => ':attribute 항목은 정확히 :size자여야 합니다.',
+    ],
+    'string' => ':attribute 항목은 문자열이어야 합니다.',
+    'unique' => '이미 사용 중인 :attribute입니다.',
+    'uploaded' => ':attribute 업로드에 실패했습니다.',
+    'url' => ':attribute 항목은 올바른 URL이어야 합니다.',
+
+    'custom' => [
+        'profileImage' => [
+            'image' => '프로필 이미지는 이미지 파일이어야 합니다.',
+            'max' => '프로필 이미지는 최대 2MB까지 업로드할 수 있습니다.',
+            'mimes' => '프로필 이미지는 jpg, jpeg, png, webp 형식만 업로드할 수 있습니다.',
+        ],
+    ],
+
     'attributes' => [
         'name' => '이름',
         'email' => '이메일',
@@ -30,5 +64,7 @@ return [
         'current_password' => '현재 비밀번호',
         'password_confirmation' => '비밀번호 확인',
         'code' => '인증 코드',
+        'profileImage' => '프로필 이미지',
+        'profile_image' => '프로필 이미지',
     ],
 ];
