@@ -77,6 +77,30 @@ class ProfileUpdateTest extends TestCase
         Storage::disk('r2')->assertExists($storedPath);
     }
 
+    public function test_profile_image_can_be_deleted_from_storage(): void
+    {
+        Storage::fake('r2');
+
+        $user = User::factory()->create();
+        $path = "media/users/{$user->id}/profile/profile-existing.jpg";
+
+        $user->forceFill([
+            'profile_image_path' => $path,
+        ])->save();
+
+        Storage::disk('r2')->put($path, 'profile-image');
+
+        $this->actingAs($user);
+
+        $response = Livewire::test('pages::settings.profile')
+            ->call('deleteProfileImage');
+
+        $response->assertHasNoErrors(['profileImage']);
+
+        $this->assertNull($user->refresh()->profile_image_path);
+        Storage::disk('r2')->assertMissing($path);
+    }
+
     public function test_user_can_delete_their_account(): void
     {
         $user = User::factory()->create();

@@ -141,7 +141,20 @@ class R2ImageStorageService
             return;
         }
 
-        Storage::disk(self::DISK)->delete(ltrim($path, '/'));
+        $path = ltrim($path, '/');
+        $disk = Storage::disk(self::DISK);
+
+        if (! $disk->fileExists($path)) {
+            return;
+        }
+
+        if (! $disk->delete($path)) {
+            throw new RuntimeException('R2 이미지 삭제에 실패했습니다.');
+        }
+
+        if ($disk->fileExists($path)) {
+            throw new RuntimeException('R2 이미지가 실제로 삭제되지 않았습니다.');
+        }
     }
 
     /**

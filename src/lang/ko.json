@@ -39,6 +39,7 @@
   "Profile image deleted.": "프로필 이미지가 삭제되었습니다.",
   "Failed to upload profile image.": "프로필 이미지를 업로드하지 못했습니다.",
   "Failed to delete profile image.": "프로필 이미지를 삭제하지 못했습니다.",
+  "Are you sure you want to delete your profile image?": "프로필 이미지를 삭제하시겠습니까?",
   "A new verification link has been sent to your email address.": "이메일 주소로 새 인증 링크를 보냈습니다.",
 
   "Delete account": "계정 삭제",
