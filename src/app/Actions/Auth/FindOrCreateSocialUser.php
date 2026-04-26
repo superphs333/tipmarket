@@ -63,7 +63,6 @@ class FindOrCreateSocialUser
                     'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: $email,
                     'email' => $email,
                     'password' => Str::random(40),
-                    'profile_image_path' => $socialUser->getAvatar(),
                     'email_verified_at' => now(),
                 ]);
             }
