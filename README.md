@@ -32,6 +32,7 @@ tipmarket-php  ---> tipmarket-redis (Redis)
 | `public/` | 현재 Nginx가 바라보는 공개 루트 |
 | `src/` | Laravel 애플리케이션이 들어갈 예정인 루트 |
 | `docs/server-architecture.md` | 서버 구성 상세 문서 |
+| `docs/common-commands.md` | 변경 유형별 자주 쓰는 Docker/Laravel 명령어 |
 
 ## 컨테이너
 
@@ -67,3 +68,4 @@ docker compose up -d --build
 ## 추가 문서
 
 - [서버 구성 상세](docs/server-architecture.md)
+- [자주 쓰는 명령어](docs/common-commands.md)
