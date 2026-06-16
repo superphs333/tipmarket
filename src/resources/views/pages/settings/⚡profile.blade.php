@@ -16,6 +16,7 @@ new #[Title('Profile settings')] class extends Component {
 
     public string $name = '';
     public string $email = '';
+    public string $locale = '';
 
     /**
      * Mount the component.
@@ -24,6 +25,7 @@ new #[Title('Profile settings')] class extends Component {
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->locale = config('app.locale', 'en');
     }
 
     /**
@@ -78,6 +80,19 @@ new #[Title('Profile settings')] class extends Component {
             || (Auth::user() instanceof MustVerifyEmail && Auth::user()->hasVerifiedEmail());
     }
     /* @end-chisel-email-verification */
+
+    /**
+     * Get supported display language options.
+     *
+     * @return array<string, string>
+     */
+    public function localeOptions(): array
+    {
+        return [
+            'ko' => 'Korean',
+            'en' => 'English',
+        ];
+    }
 }; ?>
 
 <section class="w-full">
@@ -85,7 +100,7 @@ new #[Title('Profile settings')] class extends Component {
 
     <flux:heading class="sr-only">{{ __('Profile settings') }}</flux:heading>
 
-    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
+    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name, email address, and language')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
             <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
 
@@ -112,6 +127,12 @@ new #[Title('Profile settings')] class extends Component {
                 @endif
                 {{-- @end-chisel-email-verification --}}
             </div>
+
+            <flux:select wire:model="locale" :label="__('Language')" required>
+                @foreach ($this->localeOptions() as $locale => $label)
+                    <flux:select.option :value="$locale">{{ __($label) }}</flux:select.option>
+                @endforeach
+            </flux:select>
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
