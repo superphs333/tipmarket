@@ -23,6 +23,9 @@ Thumbs.db
 .idea/
 .vscode/
 
+AGENTS.md
+.codex/
+
 src/.env
 src/.env.*
 !src/.env.example
