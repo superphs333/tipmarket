@@ -14,6 +14,7 @@ services:
       - ./docker/php/conf.d/uploads.ini:/usr/local/etc/php/conf.d/90-uploads.ini
     environment:
       PHP_IDE_CONFIG: "serverName=docker"
+      HOME: "/tmp"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
