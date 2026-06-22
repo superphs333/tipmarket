@@ -1,21 +1,24 @@
 <?php
 
 use App\Concerns\ProfileValidationRules;
+use Flux\Flux;
 /* @chisel-email-verification */
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 /* @end-chisel-email-verification */
-use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Profile settings')] class extends Component {
+new #[Title('Profile settings')] class extends Component
+{
     use ProfileValidationRules;
 
     public string $name = '';
+
     public string $email = '';
+
     public string $locale = '';
 
     /**
@@ -48,6 +51,9 @@ new #[Title('Profile settings')] class extends Component {
         $user->save();
 
         Flux::toast(variant: 'success', text: __('Profile updated.'));
+
+        // 저장된 언어가 즉시 적용되도록 locale middleware가 다음 요청에서 다시 실행되게 한다.
+        $this->redirectRoute('profile.edit');
     }
 
     /* @chisel-email-verification */

@@ -21,7 +21,9 @@ test('profile information can be updated', function () {
         ->set('locale', 'en')
         ->call('updateProfileInformation');
 
-    $response->assertHasNoErrors();
+    $response
+        ->assertHasNoErrors()
+        ->assertRedirectToRoute('profile.edit');
 
     $user->refresh();
 
