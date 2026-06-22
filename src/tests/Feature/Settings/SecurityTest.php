@@ -18,7 +18,10 @@ beforeEach(function () {
 });
 
 test('security settings page can be rendered', function () {
-    $user = User::factory()->create();
+    // 이 테스트는 영어 문구를 검증하므로 사용자 locale을 en으로 고정한다.
+    $user = User::factory()->create([
+        'locale' => 'en',
+    ]);
 
     $response = $this->actingAs($user)
         ->withSession(['auth.password_confirmed_at' => time()])
@@ -33,7 +36,9 @@ test('security settings page can be rendered', function () {
 });
 
 test('security settings page requires password confirmation when enabled', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'locale' => 'en',
+    ]);
 
     $response = $this->actingAs($user)
         ->get(route('security.edit'));
@@ -44,7 +49,10 @@ test('security settings page requires password confirmation when enabled', funct
 test('security settings page renders without two factor when feature is disabled', function () {
     config(['fortify.features' => []]);
 
-    $user = User::factory()->create();
+    // 이 테스트도 영어 문구를 검증하므로 사용자 locale을 en으로 고정한다.
+    $user = User::factory()->create([
+        'locale' => 'en',
+    ]);
 
     $this->actingAs($user)
         ->withSession(['auth.password_confirmed_at' => time()])

@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('locale',10)->default('ko')->after('email_verified_at');
+            // 사용자별 화면 언어를 저장한다. 기존/신규 사용자의 기본 언어는 ko로 둔다.
+            $table->string('locale', 10)->default('ko')->after('email_verified_at');
         });
     }
 

@@ -25,7 +25,8 @@ new #[Title('Profile settings')] class extends Component {
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
-        $this->locale = config('app.locale', 'en');
+        // 저장된 사용자 언어를 select 기본값으로 보여주고, 값이 없으면 앱 기본 언어를 사용한다.
+        $this->locale = Auth::user()->locale ?? config('app.locale', 'ko');
     }
 
     /**
@@ -37,6 +38,7 @@ new #[Title('Profile settings')] class extends Component {
 
         $validated = $this->validate($this->profileRules($user->id));
 
+        // name, email, locale은 ProfileValidationRules를 통과한 값만 저장한다.
         $user->fill($validated);
 
         if ($user->isDirty('email')) {
@@ -88,10 +90,8 @@ new #[Title('Profile settings')] class extends Component {
      */
     public function localeOptions(): array
     {
-        return [
-            'ko' => 'Korean',
-            'en' => 'English',
-        ];
+        // 화면 옵션과 검증 규칙이 같은 지원 언어 설정을 보도록 config를 사용한다.
+        return config('app.supported_locales', []);
     }
 }; ?>
 

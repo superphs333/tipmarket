@@ -17,6 +17,8 @@ test('profile information can be updated', function () {
     $response = Livewire::test('pages::settings.profile')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
+        // Livewire select 입력값이 검증을 거쳐 users.locale에 저장되는지 확인한다.
+        ->set('locale', 'en')
         ->call('updateProfileInformation');
 
     $response->assertHasNoErrors();
@@ -25,7 +27,23 @@ test('profile information can be updated', function () {
 
     expect($user->name)->toEqual('Test User');
     expect($user->email)->toEqual('test@example.com');
+    expect($user->locale)->toEqual('en');
     expect($user->email_verified_at)->toBeNull();
+});
+
+test('profile language must be supported', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = Livewire::test('pages::settings.profile')
+        ->set('name', 'Test User')
+        ->set('email', $user->email)
+        // config('app.supported_locales')에 없는 언어는 저장되지 않아야 한다.
+        ->set('locale', 'fr')
+        ->call('updateProfileInformation');
+
+    $response->assertHasErrors(['locale']);
 });
 
 test('email verification status is unchanged when email address is unchanged', function () {

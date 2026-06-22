@@ -77,13 +77,15 @@ return [
     | set to any locale for which you plan to have translation strings.
     |
     */
-
+    // 앱 기본 언어
     'locale' => env('APP_LOCALE', 'ko'),
 
+    // 번역이 없을 때 대체 언어
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    // 사용자가 선택할 수 있는 언어 목록
     'supported_locales' => [
         'ko' => 'Korean',
         'en' => 'English',
