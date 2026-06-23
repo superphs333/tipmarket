@@ -8,22 +8,22 @@
 
 ```mermaid
 flowchart TD
-    A[Controller / Domain Service] --> B[MediaStorageService::store]
-    B --> C[config/media.php 조회]
+    A[Controller 또는 Domain Service] --> B[미디어 저장 서비스 호출]
+    B --> C[미디어 설정 조회]
     C --> C1[MEDIA_DISK 기본값: r2]
     C --> C2[collection별 visibility]
 
-    B --> D[MediaPathGenerator::generate]
+    B --> D[저장 경로 생성]
     D --> E[ULID 기반 파일명 생성]
     E --> F{MediaCollection}
 
-    F -->|ProfileAvatar| G["profiles/{user_id}/avatar/{ulid}.{ext}"]
-    F -->|TipThumbnail + owner 있음| H["tips/{tip_id}/thumbnail/{ulid}.{ext}"]
-    F -->|TipThumbnail + owner 없음| I["media/temporary/tips/thumbnail/{ulid}.{ext}"]
-    F -->|QuestionThumbnail + owner 있음| J["questions/{question_id}/thumbnail/{ulid}.{ext}"]
-    F -->|QuestionThumbnail + owner 없음| K["media/temporary/questions/thumbnail/{ulid}.{ext}"]
+    F -->|ProfileAvatar| G[프로필 이미지 경로]
+    F -->|TipThumbnail + owner 있음| H[팁 썸네일 연결 경로]
+    F -->|TipThumbnail + owner 없음| I[팁 썸네일 임시 경로]
+    F -->|QuestionThumbnail + owner 있음| J[질문 썸네일 연결 경로]
+    F -->|QuestionThumbnail + owner 없음| K[질문 썸네일 임시 경로]
 
-    G --> L[Storage::disk(...)->putFileAs]
+    G --> L[Laravel Storage에 파일 저장]
     H --> L
     I --> L
     J --> L
@@ -33,6 +33,8 @@ flowchart TD
     M --> N[media 테이블에 메타데이터 저장]
     N --> O[Media 모델 반환]
 ```
+
+`MediaStorageService::store()`는 `MediaPathGenerator::generate()`로 경로를 만들고, `Storage::disk(...)->putFileAs()`로 실제 파일을 저장한다. 경로 예시는 아래 `저장 위치` 섹션에서 확인한다.
 
 ## 구성 파일
 
@@ -54,24 +56,32 @@ flowchart TD
     A --> D[question_thumbnail]
 
     B --> B1[owner 필수]
-    B1 --> B2["profiles/{user_id}/avatar/{ulid}.{ext}"]
+    B1 --> B2[프로필 이미지 경로]
 
     C --> C1{owner 있음?}
-    C1 -->|예| C2["tips/{tip_id}/thumbnail/{ulid}.{ext}"]
-    C1 -->|아니오| C3["media/temporary/tips/thumbnail/{ulid}.{ext}"]
+    C1 -->|예| C2[팁 연결 경로]
+    C1 -->|아니오| C3[팁 임시 경로]
 
     D --> D1{owner 있음?}
-    D1 -->|예| D2["questions/{question_id}/thumbnail/{ulid}.{ext}"]
-    D1 -->|아니오| D3["media/temporary/questions/thumbnail/{ulid}.{ext}"]
+    D1 -->|예| D2[질문 연결 경로]
+    D1 -->|아니오| D3[질문 임시 경로]
 ```
 
 파일명은 `Str::ulid()`와 업로드 파일 확장자를 조합해서 만든다. 원본 파일명은 저장 경로에 사용하지 않고, 추적용 메타데이터로만 `media.original_name`에 저장한다.
+
+| 용도 | owner | 저장 경로 |
+| --- | --- | --- |
+| `profile_avatar` | 필수 | `profiles/{user_id}/avatar/{ulid}.{ext}` |
+| `tip_thumbnail` | 있음 | `tips/{tip_id}/thumbnail/{ulid}.{ext}` |
+| `tip_thumbnail` | 없음 | `media/temporary/tips/thumbnail/{ulid}.{ext}` |
+| `question_thumbnail` | 있음 | `questions/{question_id}/thumbnail/{ulid}.{ext}` |
+| `question_thumbnail` | 없음 | `media/temporary/questions/thumbnail/{ulid}.{ext}` |
 
 ## media 테이블 역할
 
 ```mermaid
 flowchart LR
-    A[업로드 이미지 파일] --> B[Laravel Storage Disk]
+    A[업로드 이미지 파일] --> B[Laravel Storage disk]
     A --> C[media 테이블]
 
     B --> B1[실제 바이너리 파일]
@@ -84,8 +94,8 @@ flowchart LR
     C --> C5[mime_type / size / width / height]
 
     C --> D[Media 모델]
-    D --> E[publicUrl()]
-    E --> F[Storage::disk(...)->url(path)]
+    D --> E[공개 URL 생성]
+    E --> F[Storage URL 반환]
 ```
 
 `status`는 파일 연결 상태를 나타낸다.
