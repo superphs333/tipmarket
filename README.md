@@ -1,6 +1,6 @@
 # TipMarket
 
-TipMarket은 Laravel 기반의 문제 해결형 커뮤니티 서비스로 기획된 프로젝트다. 현재 저장소는 애플리케이션 코드보다 먼저 Docker Compose 기반 로컬 서버 골격을 구성한 상태이며, PHP-FPM, Nginx, MariaDB, Redis를 분리해서 운영한다.
+TipMarket은 Laravel 기반의 문제 해결형 커뮤니티 서비스로 기획된 프로젝트다. PHP-FPM, Nginx, MariaDB, Redis를 분리한 Docker Compose 환경 위에서 Laravel 애플리케이션을 운영한다.
 
 ## 현재 구성
 
@@ -15,7 +15,7 @@ tipmarket-web (Nginx)
   +-- PHP 요청: tipmarket-php:9000
         |
         v
-      ./src Laravel 애플리케이션 예정
+      ./src Laravel 애플리케이션
 
 tipmarket-php  ---> tipmarket-db (MariaDB)
 tipmarket-php  ---> tipmarket-redis (Redis)
@@ -30,9 +30,10 @@ tipmarket-php  ---> tipmarket-redis (Redis)
 | `docker/php/Dockerfile` | PHP 8.4-FPM, Composer, Node.js, Laravel 확장 구성 |
 | `docker/php/conf.d/` | Xdebug, 업로드 크기 등 PHP 런타임 설정 |
 | `public/` | 현재 Nginx가 바라보는 공개 루트 |
-| `src/` | Laravel 애플리케이션이 들어갈 예정인 루트 |
+| `src/` | Laravel 애플리케이션 루트 |
 | `docs/server-architecture.md` | 서버 구성 상세 문서 |
 | `docs/common-commands.md` | 변경 유형별 자주 쓰는 Docker/Laravel 명령어 |
+| `docs/media-storage.md` | 미디어 업로드 저장 구조와 개발자 사용법 |
 
 ## 컨테이너
 
@@ -63,9 +64,16 @@ docker compose config
 docker compose up -d --build
 ```
 
-현재 `src/` Laravel 애플리케이션은 아직 비어 있으므로, 실제 Laravel 앱을 생성하기 전에는 `public/index.html` 정적 시작 화면이 기본 진입점이다.
+Laravel 애플리케이션 코드는 `src/` 아래에서 관리한다.
+
+## 미디어 업로드
+
+이미지 업로드는 `MediaStorageService`와 `Media` 모델을 통해 처리한다. 실제 파일은 Laravel filesystem disk에 저장하고, DB에는 `media` 테이블로 메타데이터만 저장한다.
+
+자세한 저장 흐름, 다이어그램, 개발자 사용법은 [미디어 저장 구조](docs/media-storage.md)를 참고한다.
 
 ## 추가 문서
 
 - [서버 구성 상세](docs/server-architecture.md)
 - [자주 쓰는 명령어](docs/common-commands.md)
+- [미디어 저장 구조](docs/media-storage.md)
