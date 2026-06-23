@@ -17,11 +17,11 @@ flowchart TD
     D --> E[ULID 기반 파일명 생성]
     E --> F{MediaCollection}
 
-    F -->|ProfileAvatar| G[profiles/{user_id}/avatar/{ulid}.{ext}]
-    F -->|TipThumbnail + owner 있음| H[tips/{tip_id}/thumbnail/{ulid}.{ext}]
-    F -->|TipThumbnail + owner 없음| I[media/temporary/tips/thumbnail/{ulid}.{ext}]
-    F -->|QuestionThumbnail + owner 있음| J[questions/{question_id}/thumbnail/{ulid}.{ext}]
-    F -->|QuestionThumbnail + owner 없음| K[media/temporary/questions/thumbnail/{ulid}.{ext}]
+    F -->|ProfileAvatar| G["profiles/{user_id}/avatar/{ulid}.{ext}"]
+    F -->|TipThumbnail + owner 있음| H["tips/{tip_id}/thumbnail/{ulid}.{ext}"]
+    F -->|TipThumbnail + owner 없음| I["media/temporary/tips/thumbnail/{ulid}.{ext}"]
+    F -->|QuestionThumbnail + owner 있음| J["questions/{question_id}/thumbnail/{ulid}.{ext}"]
+    F -->|QuestionThumbnail + owner 없음| K["media/temporary/questions/thumbnail/{ulid}.{ext}"]
 
     G --> L[Storage::disk(...)->putFileAs]
     H --> L
@@ -54,15 +54,15 @@ flowchart TD
     A --> D[question_thumbnail]
 
     B --> B1[owner 필수]
-    B1 --> B2[profiles/{user_id}/avatar/{ulid}.{ext}]
+    B1 --> B2["profiles/{user_id}/avatar/{ulid}.{ext}"]
 
     C --> C1{owner 있음?}
-    C1 -->|예| C2[tips/{tip_id}/thumbnail/{ulid}.{ext}]
-    C1 -->|아니오| C3[media/temporary/tips/thumbnail/{ulid}.{ext}]
+    C1 -->|예| C2["tips/{tip_id}/thumbnail/{ulid}.{ext}"]
+    C1 -->|아니오| C3["media/temporary/tips/thumbnail/{ulid}.{ext}"]
 
     D --> D1{owner 있음?}
-    D1 -->|예| D2[questions/{question_id}/thumbnail/{ulid}.{ext}]
-    D1 -->|아니오| D3[media/temporary/questions/thumbnail/{ulid}.{ext}]
+    D1 -->|예| D2["questions/{question_id}/thumbnail/{ulid}.{ext}"]
+    D1 -->|아니오| D3["media/temporary/questions/thumbnail/{ulid}.{ext}"]
 ```
 
 파일명은 `Str::ulid()`와 업로드 파일 확장자를 조합해서 만든다. 원본 파일명은 저장 경로에 사용하지 않고, 추적용 메타데이터로만 `media.original_name`에 저장한다.
