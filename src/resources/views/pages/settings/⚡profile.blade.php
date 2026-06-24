@@ -377,6 +377,8 @@ new #[Title('Profile settings')] class extends Component
             </div>
         </form>
 
+        <flux:separator variant="subtle" class="my-10" />
+
         {{-- @chisel-email-verification --}}
         @if ($this->showDeleteUser)
         {{-- @end-chisel-email-verification --}}
