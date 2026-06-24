@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+        // 역할 데이터는 사용자에게 역할을 연결하기 전에 먼저 준비. 
+        $this->call([
+            RoleSeeder::class,
+        ]);
 
         User::factory()->create([
             'name' => 'Test User',
