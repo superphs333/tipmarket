@@ -8,8 +8,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -17,7 +17,6 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-
 
 /**
  * @property int $id
@@ -42,7 +41,7 @@ class User extends Authenticatable implements PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
-     * Get the attributes that should be cast. 
+     * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -80,27 +79,26 @@ class User extends Authenticatable implements PasskeyUser
     /**
      * 사용자에게 부여된 추가 역할 목록
      */
-    public function roles() : BelongsToMany
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
-    } 
+    }
 
     /**
      * 사용자가 특정 추가 역할을 가지고 있는지 확인
      */
-    public function hasRole(string $role) : bool
+    public function hasRole(string $role): bool
     {
         return $this->roles()
-            ->where('name',$role)
+            ->where('name', $role)
             ->exists();
     }
 
     /**
      * 사용자가 관리자 권한을 가지고 있는지 확인
      */
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         return $this->hasRole(Role::ADMIN);
     }
-
 }

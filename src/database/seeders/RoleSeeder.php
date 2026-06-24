@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
     /**
-     * 서비스에서 사용하는 추가 역할을 생성함. 
+     * 서비스에서 사용하는 추가 역할을 생성함.
      */
     public function run(): void
     {
