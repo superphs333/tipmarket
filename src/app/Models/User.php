@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -100,5 +101,13 @@ class User extends Authenticatable implements PasskeyUser
     public function isAdmin(): bool
     {
         return $this->hasRole(Role::ADMIN);
+    }
+
+    /**
+     * 사용자가 작성한 팁 목록
+     */
+    public function tips() : HasMany
+    {
+        return $this->hasMany(Tip::class);
     }
 }
