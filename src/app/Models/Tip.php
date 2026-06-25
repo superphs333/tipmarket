@@ -73,4 +73,10 @@ class Tip extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    // 팁에 연결된 태그 목록
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class)->withTimestamps();
+    }
 }
