@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property array<string, mixed> $content
  * @property string $status
+ * @property int|null $category_id
  * @property Carbon|null $published_at
  * @property bool $allow_comments
  * @property int $view_count
@@ -26,6 +27,7 @@ use Illuminate\Support\Carbon;
  */
 #[Fillable([
     'user_id',
+    'category_id',
     'title',
     'content',
     'status',
@@ -64,5 +66,11 @@ class Tip extends Model
     public function isPublished() : bool
     {
         return $this->status === self::STATUS_PUBLISHED && $this->published_at !== null;
+    }
+
+    // 팁이 속한 카테고리
+    public function category() : BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }
