@@ -17,22 +17,7 @@
                 </flux:select>
             </div>
 
-            <div class="space-y-3">
-                <flux:input
-                    label="태그"
-                    icon="magnifying-glass"
-                    placeholder="태그 이름 검색..."
-                />
-
-                <div class="space-y-2">
-                    <flux:text class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                        선택된 태그
-                    </flux:text>
-                    <div class="rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-                        아직 선택된 태그가 없습니다.
-                    </div>
-                </div>
-            </div>
+            <x-tags.selector />
 
             <flux:textarea
                 label="요청 내용"
