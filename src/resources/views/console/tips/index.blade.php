@@ -14,14 +14,16 @@
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <flux:button
-                        type="button"
-                        variant="outline"
-                        icon="sparkles"
-                        class="w-full sm:w-auto"
-                    >
-                        AI로 팁 추가
-                    </flux:button>
+                    <flux:modal.trigger name="ai-tip-create">
+                        <flux:button
+                            type="button"
+                            variant="outline"
+                            icon="sparkles"
+                            class="w-full sm:w-auto"
+                        >
+                            AI로 팁 추가
+                        </flux:button>
+                    </flux:modal.trigger>
 
                     <flux:button
                         type="button"
@@ -35,4 +37,6 @@
             </div>
         </div>
     </div>
+
+    @include('console.tips.modals.ai-create')
 </x-layouts::console>
