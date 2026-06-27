@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Role;
+use App\Models\Tip;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 function createConsoleUserWithRole(string $roleName): User
 {
@@ -64,4 +66,35 @@ test('admin users can manage tips', function () {
         ->get(route('console.tips.index'))
         ->assertOk()
         ->assertSee('TIPS');
+});
+
+test('tip managers can see the tip summary and creation actions', function () {
+    $contentManager = createConsoleUserWithRole(Role::CONTENT_MANAGER);
+
+    Carbon::setTestNow('2026-05-03 09:00:00');
+
+    Tip::query()->create([
+        'user_id' => $contentManager->id,
+        'title' => '첫 번째 팁',
+        'content' => ['blocks' => []],
+        'status' => Tip::STATUS_DRAFT,
+    ]);
+
+    Tip::query()->create([
+        'user_id' => $contentManager->id,
+        'title' => '두 번째 팁',
+        'content' => ['blocks' => []],
+        'status' => Tip::STATUS_PUBLISHED,
+        'published_at' => '2026-05-03 09:00:00',
+    ]);
+
+    $this->actingAs($contentManager)
+        ->get(route('console.tips.index'))
+        ->assertOk()
+        ->assertSee('Tips 관리')
+        ->assertSee('총 2개')
+        ->assertSee('최근 수정:')
+        ->assertSee('2026-05-03')
+        ->assertSee('AI로 팁 추가')
+        ->assertSee('Tip 추가');
 });
