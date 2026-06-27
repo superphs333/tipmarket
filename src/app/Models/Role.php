@@ -11,9 +11,31 @@ class Role extends Model
 {
     // 관리자 역할 키
     public const ADMIN = 'admin';
+    public const CONTENT_MANAGER = 'content_manager';
+    public const MODERATOR = 'moderator';
+    public const SUPPORT = 'support';
+
+    /**
+     * 운영 콘솔 자체에 들어올 수 있는 역할 목록
+     *
+     * 세부 메뉴와 액션 권한은 라우트/정책에서 별도로 좁힌다.
+     *
+     * @return list<string>
+     */
+    public static function consoleAccessRoles(): array
+    {
+        return [
+            self::ADMIN,
+            self::CONTENT_MANAGER,
+            self::MODERATOR,
+            self::SUPPORT,
+        ];
+    }
 
     /**
      * 이 역할을 가진 사용자 목록
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {

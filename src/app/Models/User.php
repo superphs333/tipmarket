@@ -68,6 +68,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Get the user's current profile image.
+     *
+     * @return MorphOne<Media, $this>
      */
     public function profileAvatar(): MorphOne
     {
@@ -79,6 +81,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * 사용자에게 부여된 추가 역할 목록
+     *
+     * @return BelongsToMany<Role, $this>
      */
     public function roles(): BelongsToMany
     {
@@ -96,6 +100,18 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * 사용자가 역할 목록 중 하나라도 가지고 있는지 확인
+     *
+     * @param  list<string>  $roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->roles()
+            ->whereIn('name', $roles)
+            ->exists();
+    }
+
+    /**
      * 사용자가 관리자 권한을 가지고 있는지 확인
      */
     public function isAdmin(): bool
@@ -104,7 +120,17 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * 사용자가 운영 콘솔에 접근할 수 있는지 확인
+     */
+    public function canAccessConsole(): bool
+    {
+        return $this->hasAnyRole(Role::consoleAccessRoles());
+    }
+
+    /**
      * 사용자가 작성한 팁 목록
+     *
+     * @return HasMany<Tip, $this>
      */
     public function tips() : HasMany
     {

@@ -12,12 +12,30 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::query()->updateOrCreate(
-            ['name' => Role::ADMIN],
-            [
+        $roles = [
+            Role::ADMIN => [
                 'label' => '관리자',
-                'description' => '관리자 기능 접근 및 운영 권한을 가진 사용자',
-            ]
-        );
+                'description' => '모든 운영 콘솔 기능에 접근할 수 있는 최고 권한 역할',
+            ],
+            Role::CONTENT_MANAGER => [
+                'label' => '콘텐츠 매니저',
+                'description' => '팁과 콘텐츠 운영 기능에 접근할 수 있는 역할',
+            ],
+            Role::MODERATOR => [
+                'label' => '운영자',
+                'description' => '신고 처리와 커뮤니티 운영 기능에 접근할 수 있는 역할',
+            ],
+            Role::SUPPORT => [
+                'label' => '고객 지원',
+                'description' => '사용자 문의와 지원 기능에 접근할 수 있는 역할',
+            ],
+        ];
+
+        foreach ($roles as $name => $role) {
+            Role::query()->updateOrCreate(
+                ['name' => $name],
+                $role,
+            );
+        }
     }
 }
