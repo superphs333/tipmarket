@@ -38,5 +38,7 @@
         </div>
     </div>
 
-    @include('console.tips.modals.ai-create')
+    @include('console.tips.modals.ai-create', [
+        'categories' => $categories,
+    ])
 </x-layouts::console>

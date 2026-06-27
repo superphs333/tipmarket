@@ -11,9 +11,9 @@
             <div class="space-y-2">
                 <flux:select label="카테고리">
                     <flux:select.option value="">카테고리 미선택</flux:select.option>
-                    <flux:select.option value="life">생활</flux:select.option>
-                    <flux:select.option value="real-estate">부동산</flux:select.option>
-                    <flux:select.option value="saving">절약</flux:select.option>
+                    @foreach($categories as $category)
+                        <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
+                    @endforeach
                 </flux:select>
             </div>
 
@@ -30,19 +30,6 @@
                     </flux:text>
                     <div class="rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                         아직 선택된 태그가 없습니다.
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <flux:text class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                        자주 쓰는 태그
-                    </flux:text>
-                    <div class="flex flex-wrap gap-2">
-                        <flux:button type="button" size="xs" variant="outline">+ 생활</flux:button>
-                        <flux:button type="button" size="xs" variant="outline">+ 부동산</flux:button>
-                        <flux:button type="button" size="xs" variant="outline">+ 절약</flux:button>
-                        <flux:button type="button" size="xs" variant="outline">+ 청소</flux:button>
-                        <flux:button type="button" size="xs" variant="outline">+ 건강</flux:button>
                     </div>
                 </div>
             </div>
