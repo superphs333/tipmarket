@@ -11,8 +11,11 @@ class Role extends Model
 {
     // 관리자 역할 키
     public const ADMIN = 'admin';
+
     public const CONTENT_MANAGER = 'content_manager';
+
     public const MODERATOR = 'moderator';
+
     public const SUPPORT = 'support';
 
     /**
@@ -29,6 +32,19 @@ class Role extends Model
             self::CONTENT_MANAGER,
             self::MODERATOR,
             self::SUPPORT,
+        ];
+    }
+
+    /**
+     * 팁 운영 메뉴와 목록에 접근할 수 있는 역할 목록
+     *
+     * @return list<string>
+     */
+    public static function tipManagementRoles(): array
+    {
+        return [
+            self::ADMIN,
+            self::CONTENT_MANAGER,
         ];
     }
 

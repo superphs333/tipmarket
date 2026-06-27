@@ -27,6 +27,12 @@
                     <flux:sidebar.item icon="shield-check" :href="route('console.dashboard')" :current="request()->routeIs('console.dashboard')" wire:navigate>
                         {{ __('Console Dashboard') }}
                     </flux:sidebar.item>
+
+                    @can('viewAny', \App\Models\Tip::class)
+                        <flux:sidebar.item icon="book-open-text" :href="route('console.tips.index')" :current="request()->routeIs('console.tips.*')" wire:navigate>
+                            TIPS
+                        </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
