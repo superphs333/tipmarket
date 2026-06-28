@@ -17,6 +17,7 @@
                 </flux:select>
             </div>
 
+            {{-- 태그 선택 --}}
             <x-tags.selector />
 
             <flux:textarea

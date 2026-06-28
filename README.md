@@ -77,3 +77,4 @@ Laravel 애플리케이션 코드는 `src/` 아래에서 관리한다.
 - [서버 구성 상세](docs/server-architecture.md)
 - [자주 쓰는 명령어](docs/common-commands.md)
 - [미디어 저장 구조](docs/media-storage.md)
+- [UI 템플릿 사용법](docs/templates/README.md)
