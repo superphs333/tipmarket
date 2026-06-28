@@ -9,7 +9,7 @@
 
         <div class="space-y-5">
             <div class="space-y-2">
-                <flux:select label="카테고리">
+                <flux:select label="카테고리" wire:model="categoryId">
                     <flux:select.option value="">카테고리 미선택</flux:select.option>
                     @foreach($categories as $category)
                         <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
@@ -18,12 +18,13 @@
             </div>
 
             {{-- 태그 선택 --}}
-            <x-tags.selector />
+            <livewire:tags.tag-selector wire:model="tagIds" />
 
             <flux:textarea
                 label="요청 내용"
                 rows="5"
                 placeholder="어떤 팁을 만들고 싶은지 입력하세요. 예: 전세 계약 전에 꼭 확인할 항목을 정리해줘."
+                wire:model="prompt"
             />
         </div>
 
@@ -33,8 +34,8 @@
                 type="number"
                 min="1"
                 max="20"
-                value="1"
                 class="sm:max-w-40"
+                wire:model="count"
             />
 
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -49,6 +50,9 @@
                     variant="primary"
                     icon="sparkles"
                     class="w-full sm:w-auto"
+                    wire:click="generate"
+                    wire:loading.attr="disabled"
+                    wire:target="generate"
                 >
                     AI 생성
                 </flux:button>

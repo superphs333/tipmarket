@@ -63,7 +63,7 @@
                             // 현재 검색 결과 태그가 이미 선택된 태그인지 확인 [??]문법 잘 모르겠다.
                             $isSelected = collect($selectedTags)->contains(fn ($tag) => (string) $tag['id'] === (string) $result->id);
                             // 이미 선택됐거나 최대 개수에 도달하면 추가 버튼 비활성화
-                            $isDisabled = $isSelected || count($selectedTags) >= $maxCount;
+                            $isDisabled = $isSelected || ($maxCount !== null && count($selectedTags) >= $maxCount);
                         @endphp
 
                         {{-- 추가버튼 --}}
@@ -109,7 +109,11 @@
             </flux:text>
             {{-- 현재 선택 개수 / 최대 선택 개수 --}}
             <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">
-                {{ count($selectedTags) }} / {{ $maxCount }}
+                @if ($maxCount === null)
+                    {{ count($selectedTags) }}개 선택됨
+                @else
+                    {{ count($selectedTags) }} / {{ $maxCount }}
+                @endif
             </flux:text>
         </div>
 
@@ -144,7 +148,11 @@
 
         {{-- 안내 문구 --}}
         <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">
-            태그는 선택 사항이며 최대 {{ $maxCount }}개까지 선택할 수 있습니다.
+            @if ($maxCount === null)
+                태그는 선택 사항입니다.
+            @else
+                태그는 선택 사항이며 최대 {{ $maxCount }}개까지 선택할 수 있습니다.
+            @endif
         </flux:text>
     </div>
 </div>

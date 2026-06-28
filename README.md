@@ -72,6 +72,19 @@ Laravel 애플리케이션 코드는 `src/` 아래에서 관리한다.
 
 자세한 저장 흐름, 다이어그램, 개발자 사용법은 [미디어 저장 구조](docs/media-storage.md)를 참고한다.
 
+## 재사용 UI 템플릿
+
+태그 선택기는 일반 Blade 폼과 Livewire 부모 컴포넌트 양쪽에서 재사용한다. 기본 선택 개수 제한은 없고, 화면별 제한이 필요하면 `:max-count`와 부모 검증 규칙을 함께 지정한다.
+
+```blade
+<livewire:tags.tag-selector
+    wire:model="tagIds"
+    :max-count="5"
+/>
+```
+
+상세 사용법은 [태그 선택기 문서](docs/templates/tag-selector.md)를 참고한다.
+
 ## 추가 문서
 
 - [서버 구성 상세](docs/server-architecture.md)

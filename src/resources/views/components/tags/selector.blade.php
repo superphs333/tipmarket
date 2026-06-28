@@ -1,7 +1,7 @@
 @props([
     'label' => '태그',
     'placeholder' => '태그 이름 검색...',
-    'maxCount' => 5,
+    'maxCount' => null,
     'name' => 'tag_ids',
     'selected' => [],
 ])

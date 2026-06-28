@@ -7,8 +7,8 @@ use App\Services\Tags\TagSearchService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Livewire\Attributes\Modelable;
 use Livewire\Component;
-
 
 class TagSelector extends Component
 {
@@ -18,8 +18,8 @@ class TagSelector extends Component
     public string $placeholder = '태그 이름 검색...';
     // form submit 시 hidden input의 name값 
     public string $name = 'tag_ids';
-    // 선택 가능한 최대 태그 개수
-    public int $maxCount = 5;
+    // 선택 가능한 최대 태그 개수. null이면 제한하지 않는다.
+    public ?int $maxCount = null;
     // 사용자가 입력한 검색어 
     public string $query = '';
     // 검색을 단 한번이라도 실행했는지 여부 (true => 검색 결과 드롭다운이 열림.)
@@ -38,6 +38,9 @@ class TagSelector extends Component
      */
     public array $selectedTags = [];
 
+    #[Modelable]
+    public array $value = [];
+
     /**
      * Livewire 컴포넌트가 처음 생성될 때 실행되는 초기화 메서드. 
      * 
@@ -47,7 +50,7 @@ class TagSelector extends Component
         string $label = '태그',
         string $placeholder = '태그 이름 검색...',
         string $name = 'tag_ids',
-        int $maxCount = 5,
+        ?int $maxCount = null,
         iterable $selected = [],
     ): void {
         $this->label = $label;
@@ -55,6 +58,7 @@ class TagSelector extends Component
         $this->name = $name;
         $this->maxCount = $maxCount;
         $this->selectedTags = $this->normalizeTags($selected); // 내부에서 쓰기 좋은 배열 형태로 통일. 
+        $this->syncValue();
     }
 
     // 검색 실행 메서드 
@@ -93,6 +97,18 @@ class TagSelector extends Component
             'id' => $tag->id,
             'name' => $tag->name,
         ];
+
+        $this->syncValue();
+    }
+
+    // 선택 태그가 바뀔 때 $value를 동기화
+    private function syncValue(): void
+    {
+        $this->value = collect($this->selectedTags)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->values()
+            ->all();
     }
 
     // 선택된 태그를 제거 
@@ -102,6 +118,7 @@ class TagSelector extends Component
             ->reject(fn (array $tag): bool => (string) $tag['id'] === (string) $tagId) // 제거하려는 id와 같은 태그를 제외.
             ->values() // 배열 인덱스를 0부터 다시 정렬
             ->all(); // Collection을 다시 일반 php 배열로 반환
+        $this->syncValue();
     }
 
 
@@ -177,7 +194,8 @@ class TagSelector extends Component
     // 선택된 태그 개수가 최대 개수에 도달했는지 확인
     private function isMaxReached(): bool
     {
-        return count($this->selectedTags) >= $this->maxCount;
+        return $this->maxCount !== null
+            && count($this->selectedTags) >= $this->maxCount;
     }
 
     /**

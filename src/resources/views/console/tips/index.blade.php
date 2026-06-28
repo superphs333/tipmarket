@@ -38,7 +38,5 @@
         </div>
     </div>
 
-    @include('console.tips.modals.ai-create', [
-        'categories' => $categories,
-    ])
+    <livewire:console.tips.ai-create-tip />
 </x-layouts::console>

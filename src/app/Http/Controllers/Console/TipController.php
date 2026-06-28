@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Console;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Tip;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -16,14 +15,11 @@ class TipController extends Controller
             ->latest('updated_at')
             ->value('updated_at');
 
-        $categories = Category::query()->forSelect()->get();
-
         return view('console.tips.index', [
             'tipsTotal' => Tip::query()->count(),
             'latestTipUpdatedDate' => $latestUpdatedAt
                 ? Carbon::parse($latestUpdatedAt)->toDateString()
                 : null,
-            'categories' => $categories,
         ]);
     }
 }
