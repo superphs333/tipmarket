@@ -51,44 +51,37 @@
                     </flux:text>
                 </div>
 
-                <div class="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400" wire:loading wire:target="search,addTag,removeTag">
+                <div class="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400" wire:loading wire:target="search,addTag,addNewTag,removeTag">
                     검색 중입니다...
                 </div>
 
                 {{-- 로딩 중이 아닐 때 결과 목록 표시 --}}
-                <div class="max-h-72 overflow-y-auto py-1" wire:loading.remove wire:target="search,addTag,removeTag">
-                    {{-- $results 컬렉션 반복 --}}
-                    @forelse ($results as $result)
-                        @php
-                            // 현재 검색 결과 태그가 이미 선택된 태그인지 확인 [??]문법 잘 모르겠다.
-                            $isSelected = collect($selectedTags)->contains(fn ($tag) => (string) $tag['id'] === (string) $result->id);
-                            // 이미 선택됐거나 최대 개수에 도달하면 추가 버튼 비활성화
-                            $isDisabled = $isSelected || ($maxCount !== null && count($selectedTags) >= $maxCount);
-                        @endphp
-
+                <div class="max-h-72 overflow-y-auto py-1" wire:loading.remove wire:target="search,addTag,addNewTag,removeTag">
+                    {{-- 검색 결과 항목 반복 --}}
+                    @forelse ($resultItems as $result)
                         {{-- 추가버튼 --}}
                         <button
                             type="button"
                             class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-zinc-800/60"
-                            wire:click="addTag({{ $result->id }})"
-                            @disabled($isDisabled)
+                            wire:click="addTag({{ $result['id'] }})"
+                            @disabled($result['isDisabled'])
                         >
                             <span class="flex min-w-0 items-center gap-3">
                                 <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
                                     <flux:icon.magnifying-glass class="size-4" />
                                 </span>
-                                <span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{{ $result->name }}</span>
+                                <span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{{ $result['name'] }}</span>
                             </span>
 
                             <span @class([
                                 'inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium',
-                                'bg-zinc-400/15 text-zinc-700 dark:bg-zinc-400/40 dark:text-zinc-200' => $isSelected,
-                                'bg-blue-400/20 text-blue-800 dark:bg-blue-400/40 dark:text-blue-200' => ! $isSelected,
+                                'bg-zinc-400/15 text-zinc-700 dark:bg-zinc-400/40 dark:text-zinc-200' => $result['isSelected'],
+                                'bg-blue-400/20 text-blue-800 dark:bg-blue-400/40 dark:text-blue-200' => ! $result['isSelected'],
                             ])>
-                                @if (! $isSelected)
+                                @if (! $result['isSelected'])
                                     <flux:icon.plus class="size-3" />
                                 @endif
-                                <span>{{ $isSelected ? '선택됨' : '추가' }}</span>
+                                <span>{{ $result['isSelected'] ? '선택됨' : '추가' }}</span>
                             </span>
                         </button>
                     @empty
@@ -96,6 +89,35 @@
                             {{ $resultMessage }}
                         </div>
                     @endforelse
+
+                    {{-- 태그 추가 CTA --}}
+                    @if ($canCreateTag)
+                        <div class="border-t border-zinc-100 bg-zinc-50/80 px-2 py-2 dark:border-zinc-800 dark:bg-zinc-950/40">
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-white hover:shadow-xs dark:hover:bg-zinc-800"
+                                wire:click="addNewTag"
+                            >
+                                <span class="flex min-w-0 items-center gap-3">
+                                    <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300">
+                                        <flux:icon.plus class="size-4" />
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="block truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                            "{{ $creatableTagName }}" 새 태그로 추가
+                                        </span>
+                                        <span class="block truncate text-xs text-zinc-500 dark:text-zinc-400">
+                                            검색 결과에 없어도 직접 태그를 만들 수 있습니다.
+                                        </span>
+                                    </span>
+                                </span>
+
+                                <span class="inline-flex shrink-0 items-center rounded-md bg-emerald-400/15 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300">
+                                    신규
+                                </span>
+                            </button>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -123,11 +145,24 @@
                 <div class="flex flex-wrap gap-2">
                     {{-- 선택된 태그들을 badge 형태로 표시 --}}
                     @foreach ($selectedTags as $tag)
-                        <span class="inline-flex items-center gap-1 rounded-md bg-blue-400/20 px-2 py-1 text-sm font-medium text-blue-800 dark:bg-blue-400/40 dark:text-blue-200">
+                        <span @class([
+                            'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium',
+                            'bg-blue-400/20 text-blue-800 dark:bg-blue-400/40 dark:text-blue-200' => ! ($tag['isNew'] ?? false),
+                            'bg-emerald-400/15 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-200' => $tag['isNew'] ?? false,
+                        ])>
+                            @if ($tag['isNew'] ?? false)
+                                <span class="rounded bg-emerald-500/15 px-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-200">
+                                    신규
+                                </span>
+                            @endif
                             <span>{{ $tag['name'] }}</span>
                             <button
                                 type="button"
-                                class="text-blue-700 hover:text-blue-950 dark:text-blue-200 dark:hover:text-white"
+                                @class([
+                                    'hover:text-blue-950 dark:hover:text-white' => ! ($tag['isNew'] ?? false),
+                                    'text-blue-700 dark:text-blue-200' => ! ($tag['isNew'] ?? false),
+                                    'text-emerald-700 hover:text-emerald-950 dark:text-emerald-200 dark:hover:text-white' => $tag['isNew'] ?? false,
+                                ])
                                 wire:click="removeTag('{{ $tag['id'] }}')"
                                 aria-label="{{ $tag['name'] }} 태그 제거"
                             >x</button>
@@ -143,7 +178,11 @@
 
         {{-- 실제 form submit 때 서버로 넘어가는 값 --}}
         @foreach ($selectedTags as $tag)
-            <input type="hidden" name="{{ $name }}[]" value="{{ $tag['id'] }}">
+            @if ($tag['isNew'] ?? false)
+                <input type="hidden" name="new_tag_names[]" value="{{ $tag['name'] }}">
+            @else
+                <input type="hidden" name="{{ $name }}[]" value="{{ $tag['id'] }}">
+            @endif
         @endforeach
 
         {{-- 안내 문구 --}}
