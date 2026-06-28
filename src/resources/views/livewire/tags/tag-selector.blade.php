@@ -146,23 +146,17 @@
                     {{-- 선택된 태그들을 badge 형태로 표시 --}}
                     @foreach ($selectedTags as $tag)
                         <span @class([
-                            'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium',
-                            'bg-blue-400/20 text-blue-800 dark:bg-blue-400/40 dark:text-blue-200' => ! ($tag['isNew'] ?? false),
-                            'bg-emerald-400/15 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-200' => $tag['isNew'] ?? false,
+                            'relative inline-flex items-center gap-1 rounded-md bg-blue-400/20 px-2 py-1 text-sm font-medium text-blue-800 dark:bg-blue-400/40 dark:text-blue-200',
                         ])>
                             @if ($tag['isNew'] ?? false)
-                                <span class="rounded bg-emerald-500/15 px-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-200">
-                                    신규
+                                <span class="absolute -right-1 -top-1 flex size-3 items-center justify-center rounded-full bg-emerald-600 text-[8px] font-bold leading-none text-white ring-1 ring-white dark:bg-emerald-400 dark:text-emerald-950 dark:ring-zinc-900" aria-label="신규 태그" title="신규 태그">
+                                    N
                                 </span>
                             @endif
                             <span>{{ $tag['name'] }}</span>
                             <button
                                 type="button"
-                                @class([
-                                    'hover:text-blue-950 dark:hover:text-white' => ! ($tag['isNew'] ?? false),
-                                    'text-blue-700 dark:text-blue-200' => ! ($tag['isNew'] ?? false),
-                                    'text-emerald-700 hover:text-emerald-950 dark:text-emerald-200 dark:hover:text-white' => $tag['isNew'] ?? false,
-                                ])
+                                class="text-blue-700 hover:text-blue-950 dark:text-blue-200 dark:hover:text-white"
                                 wire:click="removeTag('{{ $tag['id'] }}')"
                                 aria-label="{{ $tag['name'] }} 태그 제거"
                             >x</button>

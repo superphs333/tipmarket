@@ -57,6 +57,7 @@ test('livewire tag selector adds a new tag candidate without creating a tag reco
         ->assertSet('selectedTags.0.name', '욕실정리')
         ->assertSet('selectedTags.0.isNew', true)
         ->assertSet('value', [])
+        ->assertSee('aria-label="신규 태그"', false)
         ->assertSee('name="new_tag_names[]"', false);
 
     expect(Tag::query()->where('name', '욕실정리')->exists())->toBeFalse();
