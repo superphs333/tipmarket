@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $user_id
  * @property string $title
- * @property array<string, mixed> $content
+ * @property string $content
  * @property string $status
  * @property int|null $category_id
  * @property Carbon|null $published_at
@@ -54,7 +54,6 @@ class Tip extends Model
     protected function casts(): array
     {
         return [
-            'content' => 'array',
             'published_at' => 'datetime',
             'allow_comments' => 'boolean',
         ];

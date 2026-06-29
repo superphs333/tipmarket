@@ -19,7 +19,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('title', 160)->comment('팁 제목');
-            $table->json('content')->comment('에디터 원본 본문 JSON');
+            $table->longText('content')->comment('에디터 HTML 본문');
             $table->string('status', 30)->default('draft')->comment('팁 상태: draft, published, hidden, archived');
             $table->timestamp('published_at')->nullable()->comment('팁 공개 발행 시각');
             $table->boolean('allow_comments')->default(true)->comment('댓글 허용 여부');
