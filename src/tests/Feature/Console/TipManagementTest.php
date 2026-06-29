@@ -76,14 +76,14 @@ test('tip managers can see the tip summary and creation actions', function () {
     Tip::query()->create([
         'user_id' => $contentManager->id,
         'title' => '첫 번째 팁',
-        'content' => ['blocks' => []],
+        'content' => '<p>첫 번째 팁 본문</p>',
         'status' => Tip::STATUS_DRAFT,
     ]);
 
     Tip::query()->create([
         'user_id' => $contentManager->id,
         'title' => '두 번째 팁',
-        'content' => ['blocks' => []],
+        'content' => '<p>두 번째 팁 본문</p>',
         'status' => Tip::STATUS_PUBLISHED,
         'published_at' => '2026-05-03 09:00:00',
     ]);
