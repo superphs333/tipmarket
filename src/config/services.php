@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'tip_model' => env('OPENAI_TIP_MODEL', 'gpt-4.1-mini'),
+        'tip_timeout' => env('OPENAI_TIP_TIMEOUT', 30),
+        'responses_endpoint' => env('OPENAI_RESPONSES_ENDPOINT', 'https://api.openai.com/v1/responses'),
+    ],
 
 ];

@@ -14,14 +14,22 @@ class TagSelector extends Component
 {
     // 화면에 표시할 레벨
     public string $label = '태그';
+
     // 검색 input의 placeholder 문구
     public string $placeholder = '태그 이름 검색...';
+
     // form submit 시 hidden input의 name값
     public string $name = 'tag_ids';
+
+    // wire:model로 부모에게 넘길 값의 종류. 기본은 기존 태그 id 배열이다.
+    public string $valueMode = 'ids';
+
     // 선택 가능한 최대 태그 개수. null이면 제한하지 않는다.
     public ?int $maxCount = null;
+
     // 사용자가 입력한 검색어
     public string $query = '';
+
     // 검색을 단 한번이라도 실행했는지 여부 (true => 검색 결과 드롭다운이 열림.)
     public bool $hasSearched = false;
 
@@ -50,12 +58,14 @@ class TagSelector extends Component
         string $label = '태그',
         string $placeholder = '태그 이름 검색...',
         string $name = 'tag_ids',
+        string $valueMode = 'ids',
         ?int $maxCount = null,
         iterable $selected = [],
     ): void {
         $this->label = $label;
         $this->placeholder = $placeholder;
         $this->name = $name;
+        $this->valueMode = $valueMode;
         $this->maxCount = $maxCount;
         $this->selectedTags = $this->normalizeTags($selected); // 내부에서 쓰기 좋은 배열 형태로 통일.
         $this->syncValue();
@@ -114,13 +124,11 @@ class TagSelector extends Component
      *     'name' => '욕실정리',
      *     'isNew' => true,
      * ]
-     *
-     * @return void
      */
     public function addNewTag(): void
     {
-        // 사용자가 입력한 검색어를 신규 태그명 후보로 사용한다.
-        $tagName = trim($this->query);
+        // 사용자가 입력한 검색어를 저장 정책에 맞는 신규 태그명 후보로 정리한다.
+        $tagName = $this->normalizeTagName($this->query);
 
         // UI에서 버튼을 숨겨도 Livewire 액션은 직접 호출될 수 있으므로 다시 검증한다.
         if (! $this->canCreateTagFromName($tagName)) {
@@ -141,28 +149,20 @@ class TagSelector extends Component
     }
 
     /**
-     * 부모 Livewire 컴포넌트와 동기화할 기존 태그 id 배열을 갱신한다.
+     * 부모 Livewire 컴포넌트와 동기화할 값을 갱신한다.
      *
-     * `value`는 `#[Modelable]`로 부모 컴포넌트에 전달되는 값이며, 현재 구조에서는
-     * 기존 태그의 숫자 id만 담는다. 신규 태그 후보는 DB id가 없으므로 `value`에서
-     * 제외하고, Blade의 `new_tag_names[]` hidden input으로 별도 전송한다.
+     * 기본 `ids` 모드는 일반 폼에서 기존 태그 id만 부모에 넘긴다.
+     * `names` 모드는 AI 모달처럼 기존/신규 태그를 모두 이름 기준으로 다루는 화면에서
+     * 선택된 모든 태그명을 부모에 넘긴다.
      *
-     * 최종 동기화 형태:
-     * [
-     *     1,
-     *     2,
-     * ]
-     *
-     * @return void
+     * `ids` 예: [1, 2]
+     * `names` 예: ['청소', '욕실정리']
      */
     private function syncValue(): void
     {
-        $this->value = collect($this->selectedTags)
-            ->reject(fn (array $tag): bool => $tag['isNew'] ?? false)
-            ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
-            ->values()
-            ->all();
+        $this->value = $this->valueMode === 'names'
+            ? $this->selectedTagNames()
+            : $this->selectedTagIds();
     }
 
     // 선택된 태그를 제거
@@ -175,7 +175,6 @@ class TagSelector extends Component
         $this->syncValue();
     }
 
-
     public function render(TagSearchService $tagSearchService): View
     {
         // 현재 상태에 맞는 검색 결과 조회
@@ -187,7 +186,7 @@ class TagSelector extends Component
             'resultMeta' => $this->resultMeta($results),
             'resultMessage' => $this->resultMessage($results),
             'canCreateTag' => $this->canCreateTag($results),
-            'creatableTagName' => trim($this->query),
+            'creatableTagName' => $this->normalizeTagName($this->query),
         ]);
     }
 
@@ -218,6 +217,7 @@ class TagSelector extends Component
         if (mb_strlen($this->query) < 2) {
             return '검색어 부족';
         }
+
         // 정상 검색 상태에서는 결과 개수 표시.
         return $results->count().'개 결과';
     }
@@ -282,7 +282,7 @@ class TagSelector extends Component
      */
     private function canCreateTag(Collection $results): bool
     {
-        $normalizedQuery = $this->normalizedQuery();
+        $normalizedQuery = $this->normalizeTagName($this->query);
 
         return $normalizedQuery !== ''
             && mb_strlen($normalizedQuery) >= 2
@@ -306,30 +306,35 @@ class TagSelector extends Component
      */
     private function canCreateTagFromName(string $name): bool
     {
-        $normalizedName = mb_strtolower(trim($name));
+        $normalizedName = $this->normalizeTagName($name);
+        $normalizedNameForComparison = mb_strtolower($normalizedName);
 
         return $normalizedName !== ''
             && mb_strlen($normalizedName) >= 2
             && ! $this->isMaxReached()
             && ! Tag::query()
                 ->where('is_active', true)
-                ->whereRaw('LOWER(name) = ?', [$normalizedName])
+                ->whereRaw('LOWER(name) = ?', [$normalizedNameForComparison])
                 ->exists()
-            && ! $this->selectedTagsContainName($normalizedName);
+            && ! $this->selectedTagsContainName($normalizedNameForComparison);
     }
 
     /**
-     * 현재 검색어를 태그명 비교용 문자열로 변환한다.
+     * 외부에서 들어온 태그명을 저장 전 표준 형태로 변환한다.
      *
      * 처리 규칙:
      * - 앞뒤 공백을 제거한다.
-     * - 영문 대소문자 차이를 무시할 수 있도록 소문자로 변환한다.
+     * - 사용자가 붙였을 수 있는 앞쪽 # 기호를 제거한다.
+     * - 태그명에는 공백을 허용하지 않으므로 모든 공백 문자를 제거한다.
      *
-     * @return string 정규화된 검색어
+     * @return string 정규화된 태그명
      */
-    private function normalizedQuery(): string
+    private function normalizeTagName(string $tagName): string
     {
-        return mb_strtolower(trim($this->query));
+        $tagName = trim($tagName);
+        $tagName = ltrim($tagName, '#');
+
+        return preg_replace('/\s+/u', '', $tagName) ?? $tagName;
     }
 
     /**
@@ -344,8 +349,10 @@ class TagSelector extends Component
      */
     private function resultsContainName(Collection $results, string $normalizedName): bool
     {
+        $normalizedNameForComparison = mb_strtolower($normalizedName);
+
         return $results->contains(
-            fn (Tag $tag): bool => mb_strtolower($tag->name) === $normalizedName
+            fn (Tag $tag): bool => mb_strtolower($this->normalizeTagName($tag->name)) === $normalizedNameForComparison
         );
     }
 
@@ -360,8 +367,10 @@ class TagSelector extends Component
      */
     private function selectedTagsContainName(string $normalizedName): bool
     {
+        $normalizedNameForComparison = mb_strtolower($normalizedName);
+
         return collect($this->selectedTags)
-            ->contains(fn (array $tag): bool => mb_strtolower($tag['name']) === $normalizedName);
+            ->contains(fn (array $tag): bool => mb_strtolower($this->normalizeTagName($tag['name'])) === $normalizedNameForComparison);
     }
 
     // 특정 태그 id가 이미 선택되어 있는지 확인
@@ -376,6 +385,36 @@ class TagSelector extends Component
     {
         return $this->maxCount !== null
             && count($this->selectedTags) >= $this->maxCount;
+    }
+
+    /**
+     * 선택된 기존 태그 id만 반환한다.
+     *
+     * @return array<int, int>
+     */
+    private function selectedTagIds(): array
+    {
+        return collect($this->selectedTags)
+            ->reject(fn (array $tag): bool => $tag['isNew'] ?? false)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * 선택된 기존/신규 태그명을 모두 반환한다.
+     *
+     * @return array<int, string>
+     */
+    private function selectedTagNames(): array
+    {
+        return collect($this->selectedTags)
+            ->map(fn (array $tag): string => $this->normalizeTagName($tag['name']))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

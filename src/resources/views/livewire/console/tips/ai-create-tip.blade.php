@@ -3,7 +3,7 @@
         <div>
             <flux:heading size="lg">AI로 팁 추가</flux:heading>
             <flux:text class="mt-2 text-zinc-500 dark:text-zinc-400">
-                카테고리와 태그는 선택 사항입니다.
+                카테고리, 태그, 요청 내용은 선택 사항입니다.
             </flux:text>
         </div>
 
@@ -18,12 +18,16 @@
             </div>
 
             {{-- 태그 선택 --}}
-            <livewire:tags.tag-selector wire:model="tagIds" />
+            <livewire:tags.tag-selector
+                :key="'ai-tip-tag-selector-'.$tagSelectorKey"
+                wire:model="tagNames"
+                value-mode="names"
+            />
 
             <flux:textarea
                 label="요청 내용"
                 rows="5"
-                placeholder="어떤 팁을 만들고 싶은지 입력하세요. 예: 전세 계약 전에 꼭 확인할 항목을 정리해줘."
+                placeholder="비워두면 선택한 카테고리와 태그를 바탕으로 AI가 주제를 정합니다."
                 wire:model="prompt"
             />
         </div>

@@ -62,3 +62,20 @@ test('livewire tag selector adds a new tag candidate without creating a tag reco
 
     expect(Tag::query()->where('name', '욕실정리')->exists())->toBeFalse();
 });
+
+test('livewire tag selector can sync selected tag names for ai flows', function () {
+    $tag = Tag::query()->create([
+        'name' => '청소',
+        'slug' => '청소',
+        'is_active' => true,
+    ]);
+
+    Livewire::test(TagSelector::class, [
+        'valueMode' => 'names',
+    ])
+        ->call('addTag', $tag->id)
+        ->set('query', '#욕실 정리')
+        ->call('search')
+        ->call('addNewTag')
+        ->assertSet('value', ['청소', '욕실정리']);
+});
