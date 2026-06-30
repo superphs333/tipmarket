@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tips', function (Blueprint $table) {
-            $table->string('audience', 30)
+            $table->enum('audience', ['public', 'premium', 'private'])
                 ->default('private')
                 ->after('status')
                 ->comment('팁 접근 대상: public, premium, private');
