@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('title', 160)->comment('팁 제목');
             $table->longText('content')->comment('에디터 HTML 본문');
             $table->string('status', 30)->default('draft')->comment('팁 상태: draft, published');
-            $table->timestamp('published_at')->nullable()->comment('팁 공개 발행 시각');
             $table->boolean('allow_comments')->default(true)->comment('댓글 허용 여부');
 
             $table->unsignedInteger('view_count')->default(0)->comment('조회 수 캐시');
@@ -32,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['status', 'published_at']);
+            $table->index('status');
             $table->index(['user_id', 'status']);
         });
     }

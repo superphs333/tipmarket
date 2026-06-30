@@ -32,7 +32,6 @@ final class CreateTip
                 'title' => $draft->title,
                 'content' => $draft->content,
                 'status' => Tip::STATUS_DRAFT,
-                'published_at' => null,
                 'allow_comments' => true,
             ]);
 

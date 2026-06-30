@@ -85,7 +85,6 @@ test('tip managers can see the tip summary and creation actions', function () {
         'title' => '두 번째 팁',
         'content' => '<p>두 번째 팁 본문</p>',
         'status' => Tip::STATUS_PUBLISHED,
-        'published_at' => '2026-05-03 09:00:00',
     ]);
 
     $this->actingAs($contentManager)

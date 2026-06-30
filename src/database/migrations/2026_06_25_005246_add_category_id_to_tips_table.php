@@ -22,7 +22,7 @@ return new class extends Migration
                 ->restrictOnDelete();
 
             // 카테고리별 공개 팁 목록 조회 최적화.
-            $table->index(['category_id', 'status', 'published_at']);
+            $table->index(['category_id', 'status']);
         });
     }
 
@@ -32,7 +32,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tips', function (Blueprint $table) {
-            $table->dropIndex(['category_id', 'status', 'published_at']);
+            $table->dropIndex(['category_id', 'status']);
             $table->dropConstrainedForeignId('category_id');
         });
     }

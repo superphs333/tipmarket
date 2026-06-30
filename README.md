@@ -39,6 +39,23 @@ Laravel starter kit이 제공하는 기본 인증 기능은 대표 기능으로 
 | AI 프롬프트 구성 | `src/app/Services/Ai/Tip/BuildTipGenerationPrompt.php` |
 | AI 결과 생성 | `src/app/Services/Ai/Tip/GenerateTipsFromPrompt.php` |
 
+### 팁 공개 정책
+
+팁의 작성 상태와 접근 대상을 분리했다. `status`는 글의 생명주기만 나타내고, `audience`는 발행된 글을 누가 볼 수 있는지 나타낸다.
+
+| 컬럼 | 값 | 의미 |
+| --- | --- | --- |
+| `status` | `draft`, `published` | 초안/발행 상태 |
+| `audience` | `public`, `premium`, `private` | 전체 공개/프리미엄 공개/작성자 비공개 |
+
+정상 조합은 아래 기준으로 제한한다.
+
+| `audience` \ `status` | `draft` | `published` |
+| --- | --- | --- |
+| `public` | X | O |
+| `premium` | X | O |
+| `private` | O | O |
+
 ### 역할 기반 콘솔 접근
 
 운영 콘솔은 로그인/이메일 인증 이후에도 역할을 한 번 더 확인한다. 콘솔 진입 권한과 팁 관리 권한을 분리해 이후 메뉴가 늘어날 때 세부 정책을 좁힐 수 있도록 했다.

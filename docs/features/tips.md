@@ -25,7 +25,7 @@
 
 | 영역 | 파일 | 역할 |
 | --- | --- | --- |
-| 팁 모델 | `src/app/Models/Tip.php` | 팁 상태, 작성자, 카테고리, 태그 관계 정의 |
+| 팁 모델 | `src/app/Models/Tip.php` | 팁 상태, 공개 대상, 작성자, 카테고리, 태그 관계 정의 |
 | 카테고리 모델 | `src/app/Models/Category.php` | 팁 분류 기준 |
 | 태그 모델 | `src/app/Models/Tag.php` | 태그 이름, 활성 상태, 사용량 관리 |
 | 초안 데이터 | `src/app/Data/Tips/TipDraftData.php` | 저장 전 팁 데이터를 전달하는 DTO |
@@ -39,7 +39,7 @@
 - 팁 저장을 Controller나 Livewire 컴포넌트에 두지 않고 `CreateTip` Action으로 분리했다.
 - 저장 흐름은 트랜잭션으로 묶어 팁과 태그 연결의 일관성을 유지한다.
 - `TipDraftData`를 사용해 AI 생성, 직접 작성, import 같은 여러 입력 출처를 같은 저장 Action으로 연결할 수 있게 했다.
-- 팁 상태는 `draft`, `published`, `hidden`, `archived`로 확장 가능하게 정의했다.
+- 팁 상태는 `draft`, `published`로 단순화하고, 공개 대상은 `audience` 컬럼의 `public`, `premium`, `private`로 분리했다.
 
 ## 검증
 
@@ -50,6 +50,6 @@ docker compose exec -T app php artisan test tests/Feature/Console/TipManagementT
 ## 남은 작업
 
 - 직접 작성 폼과 수정/삭제 기능 연결
-- 공개/숨김/보관 상태 전환 기능
+- 공개 대상 전환 기능
 - 목록 pagination, 검색, 필터링
 - 사용자 공개 화면과 상세 화면
