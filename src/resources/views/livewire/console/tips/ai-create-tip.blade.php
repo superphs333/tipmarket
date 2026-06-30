@@ -8,6 +8,10 @@
         </div>
 
         <div class="space-y-5">
+            @error('aiGeneration')
+                <flux:callout variant="danger" icon="x-circle" heading="{{ $message }}" />
+            @enderror
+
             <div class="space-y-2">
                 <flux:select label="카테고리" wire:model="categoryId">
                     <flux:select.option value="">카테고리 미선택</flux:select.option>

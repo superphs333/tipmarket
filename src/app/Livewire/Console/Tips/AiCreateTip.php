@@ -9,7 +9,9 @@ use App\Services\Ai\Tip\BuildTipGenerationPrompt;
 use App\Services\Ai\Tip\GenerateTipsFromPrompt;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Throwable;
 
 /**
  * 콘솔 팁 관리 화면의 "AI로 팁 추가" 모달 상태와 생성 흐름을 조율한다.
@@ -84,11 +86,22 @@ class AiCreateTip extends Component
             tagNames: $requiredTagNames,
         );
 
-        $drafts = $generateTips(
-            prompt: $prompt,
-            categoryId: $validated['categoryId'],
-            requiredTagNames: $requiredTagNames,
-        );
+        try {
+            $drafts = $generateTips(
+                prompt: $prompt,
+                categoryId: $validated['categoryId'],
+                requiredTagNames: $requiredTagNames,
+            );
+        } catch (Throwable $exception) {
+            Log::warning('AI tip generation failed.', [
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
+
+            $this->addError('aiGeneration', 'AI 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+
+            return;
+        }
 
         $tips = $createTips(
             author: $author,
