@@ -7,6 +7,7 @@ use App\Concerns\TaxonomyValidationRules;
 use App\Models\Category;
 use App\Services\Ai\Tip\BuildTipGenerationPrompt;
 use App\Services\Ai\Tip\GenerateTipsFromPrompt;
+use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -109,12 +110,16 @@ class AiCreateTip extends Component
         );
 
         // 저장된 Tip 모델 개수를 기준으로 사용자에게 결과를 알려준다.
-        session()->flash('status', count($tips).'개 추가되었습니다.');
+        Flux::toast(variant: 'success', text: count($tips).'개가 생성되었습니다.');
+        Flux::modal('ai-tip-create')->close();
 
         // 같은 모달에서 연속 생성할 때 이전 입력이 남지 않도록 초기화한다.
         $this->reset(['categoryId', 'prompt', 'tagNames']);
         $this->count = 1;
         $this->tagSelectorKey++;
+
+        // 컨트롤러가 계산하는 총 개수/최근 수정일 요약이 즉시 갱신되도록 현재 목록 화면을 다시 연다.
+        $this->redirectRoute('console.tips.index');
     }
 
     public function render(): View
