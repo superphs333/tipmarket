@@ -19,10 +19,7 @@ class TagSelector extends Component
     public string $placeholder = '태그 이름 검색...';
 
     // form submit 시 hidden input의 name값
-    public string $name = 'tag_ids';
-
-    // wire:model로 부모에게 넘길 값의 종류. 기본은 기존 태그 id 배열이다.
-    public string $valueMode = 'ids';
+    public string $name = 'tag_names';
 
     // 선택 가능한 최대 태그 개수. null이면 제한하지 않는다.
     public ?int $maxCount = null;
@@ -57,15 +54,13 @@ class TagSelector extends Component
     public function mount(
         string $label = '태그',
         string $placeholder = '태그 이름 검색...',
-        string $name = 'tag_ids',
-        string $valueMode = 'ids',
+        string $name = 'tag_names',
         ?int $maxCount = null,
         iterable $selected = [],
     ): void {
         $this->label = $label;
         $this->placeholder = $placeholder;
         $this->name = $name;
-        $this->valueMode = $valueMode;
         $this->maxCount = $maxCount;
         $this->selectedTags = $this->normalizeTags($selected); // 내부에서 쓰기 좋은 배열 형태로 통일.
         $this->syncValue();
@@ -102,6 +97,11 @@ class TagSelector extends Component
         if (! $tag) {
             return;
         }
+
+        if ($this->selectedTagsContainName($tag->name)) {
+            return;
+        }
+
         // 선택된 태그 목록에 추가
         $this->selectedTags[] = [
             'id' => $tag->id,
@@ -116,7 +116,7 @@ class TagSelector extends Component
      *
      * 이 메서드는 태그를 DB에 바로 저장하지 않는다. 태그 선택기는 입력 부품이므로
      * 신규 태그 후보를 `selectedTags`에만 추가하고, 실제 생성은 부모 폼/저장 로직이
-     * `new_tag_names[]` 값을 검증한 뒤 처리한다.
+     * `tag_names[]` 값을 검증한 뒤 처리한다.
      *
      * 추가되는 내부 형태:
      * [
@@ -151,18 +151,14 @@ class TagSelector extends Component
     /**
      * 부모 Livewire 컴포넌트와 동기화할 값을 갱신한다.
      *
-     * 기본 `ids` 모드는 일반 폼에서 기존 태그 id만 부모에 넘긴다.
-     * `names` 모드는 AI 모달처럼 기존/신규 태그를 모두 이름 기준으로 다루는 화면에서
-     * 선택된 모든 태그명을 부모에 넘긴다.
+     * 태그 선택기의 외부 값은 기존/신규 구분 없이 태그명 배열로 통일한다.
+     * DB id는 저장 Action에서 name 기준으로 찾거나 생성한 뒤에만 사용한다.
      *
-     * `ids` 예: [1, 2]
-     * `names` 예: ['청소', '욕실정리']
+     * 예: ['청소', '욕실정리']
      */
     private function syncValue(): void
     {
-        $this->value = $this->valueMode === 'names'
-            ? $this->selectedTagNames()
-            : $this->selectedTagIds();
+        $this->value = $this->selectedTagNames();
     }
 
     // 선택된 태그를 제거
@@ -258,7 +254,8 @@ class TagSelector extends Component
     {
         return $results
             ->map(function (Tag $tag): array {
-                $isSelected = $this->isSelected($tag->id);
+                $isSelected = $this->isSelected($tag->id)
+                    || $this->selectedTagsContainName($tag->name);
 
                 return [
                     'id' => $tag->id,
@@ -388,21 +385,6 @@ class TagSelector extends Component
     }
 
     /**
-     * 선택된 기존 태그 id만 반환한다.
-     *
-     * @return array<int, int>
-     */
-    private function selectedTagIds(): array
-    {
-        return collect($this->selectedTags)
-            ->reject(fn (array $tag): bool => $tag['isNew'] ?? false)
-            ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
-            ->values()
-            ->all();
-    }
-
-    /**
      * 선택된 기존/신규 태그명을 모두 반환한다.
      *
      * @return array<int, string>
@@ -441,7 +423,7 @@ class TagSelector extends Component
                     return [
                         'id' => "tag-{$index}-{$tag}",
                         'name' => $tag,
-                        'isNew' => true,
+                        'isNew' => false,
                     ];
                 }
 

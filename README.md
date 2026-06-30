@@ -76,11 +76,11 @@ Laravel 애플리케이션 코드는 `src/` 아래에서 관리한다.
 
 태그 선택기는 일반 Blade 폼과 Livewire 부모 컴포넌트 양쪽에서 재사용한다. 기본 선택 개수 제한은 없고, 화면별 제한이 필요하면 `:max-count`와 부모 검증 규칙을 함께 지정한다.
 
-기존 태그는 `tag_ids[]`, 신규 태그 후보는 `new_tag_names[]`로 전송한다. Livewire 부모 컴포넌트에서는 기본적으로 기존 태그 id 배열을 동기화하고, AI 생성처럼 태그명 배열이 필요한 화면에서는 `value-mode="names"`를 사용한다.
+기존 태그와 신규 태그 후보는 모두 `tag_names[]`로 전송한다. Livewire 부모 컴포넌트에서도 기존/신규 구분 없이 태그명 배열을 동기화하고, 저장 시점에만 태그명을 id로 변환한다.
 
 ```blade
 <livewire:tags.tag-selector
-    wire:model="tagIds"
+    wire:model="tagNames"
     :max-count="5"
 />
 ```

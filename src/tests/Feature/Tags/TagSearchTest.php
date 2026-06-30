@@ -45,7 +45,8 @@ test('livewire tag selector searches and selects tags', function () {
         ->assertSee('Laravel')
         ->call('addTag', $tag->id)
         ->assertSet('selectedTags.0.id', $tag->id)
-        ->assertSee('name="tag_ids[]"', false);
+        ->assertSet('value', ['Laravel'])
+        ->assertSee('name="tag_names[]"', false);
 });
 
 test('livewire tag selector adds a new tag candidate without creating a tag record', function () {
@@ -56,9 +57,9 @@ test('livewire tag selector adds a new tag candidate without creating a tag reco
         ->call('addNewTag')
         ->assertSet('selectedTags.0.name', '욕실정리')
         ->assertSet('selectedTags.0.isNew', true)
-        ->assertSet('value', [])
+        ->assertSet('value', ['욕실정리'])
         ->assertSee('aria-label="신규 태그"', false)
-        ->assertSee('name="new_tag_names[]"', false);
+        ->assertSee('name="tag_names[]"', false);
 
     expect(Tag::query()->where('name', '욕실정리')->exists())->toBeFalse();
 });
@@ -70,9 +71,7 @@ test('livewire tag selector can sync selected tag names for ai flows', function 
         'is_active' => true,
     ]);
 
-    Livewire::test(TagSelector::class, [
-        'valueMode' => 'names',
-    ])
+    Livewire::test(TagSelector::class)
         ->call('addTag', $tag->id)
         ->set('query', '#욕실 정리')
         ->call('search')

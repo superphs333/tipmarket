@@ -21,7 +21,6 @@
             <livewire:tags.tag-selector
                 :key="'ai-tip-tag-selector-'.$tagSelectorKey"
                 wire:model="tagNames"
-                value-mode="names"
             />
 
             <flux:textarea

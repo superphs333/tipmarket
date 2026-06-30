@@ -172,11 +172,7 @@
 
         {{-- 실제 form submit 때 서버로 넘어가는 값 --}}
         @foreach ($selectedTags as $tag)
-            @if ($tag['isNew'] ?? false)
-                <input type="hidden" name="new_tag_names[]" value="{{ $tag['name'] }}">
-            @else
-                <input type="hidden" name="{{ $name }}[]" value="{{ $tag['id'] }}">
-            @endif
+            <input type="hidden" name="{{ $name }}[]" value="{{ $tag['name'] }}">
         @endforeach
 
         {{-- 안내 문구 --}}
