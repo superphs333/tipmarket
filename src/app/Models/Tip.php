@@ -15,8 +15,10 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property string $content
  * @property string $status
+ * @property string $audience
  * @property int|null $category_id
  * @property Carbon|null $published_at
+ * @property Carbon|null $hidden_at
  * @property bool $allow_comments
  * @property int $view_count
  * @property int $like_count
@@ -32,7 +34,9 @@ use Illuminate\Support\Carbon;
     'title',
     'content',
     'status',
+    'audience',
     'published_at',
+    'hidden_at',
     'allow_comments',
     'view_count',
     'like_count',
@@ -47,14 +51,17 @@ class Tip extends Model
 
     public const STATUS_PUBLISHED = 'published';
 
-    public const STATUS_HIDDEN = 'hidden';
+    public const AUDIENCE_PUBLIC = 'public';
 
-    public const STATUS_ARCHIVED = 'archived';
+    public const AUDIENCE_PREMIUM = 'premium';
+
+    public const AUDIENCE_PRIVATE = 'private';
 
     protected function casts(): array
     {
         return [
             'published_at' => 'datetime',
+            'hidden_at' => 'datetime',
             'allow_comments' => 'boolean',
         ];
     }
@@ -68,7 +75,9 @@ class Tip extends Model
     // 공개 팁인지 확인
     public function isPublished(): bool
     {
-        return $this->status === self::STATUS_PUBLISHED && $this->published_at !== null;
+        return $this->status === self::STATUS_PUBLISHED
+            && $this->published_at !== null
+            && $this->hidden_at === null;
     }
 
     // 팁이 속한 카테고리
