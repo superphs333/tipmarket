@@ -50,6 +50,8 @@ public array $tagNames = [];
 | `name` | `tag_names` | 태그명 hidden input 이름 |
 | `maxCount` | `null` | 최대 선택 개수. `null`이면 제한 없음 |
 | `selected` | `[]` | 수정 화면에서 미리 선택할 태그 목록 |
+| `allowCreate` | `true` | 신규 태그 후보 추가 허용 여부. 검색 필터에서는 `false`로 둔다 |
+| `variant` | `default` | 기본 입력 UI와 검색 필터용 `compact` UI 구분 |
 
 ## 값 전달
 
@@ -63,6 +65,116 @@ public array $tagNames = [];
 Livewire 부모 컴포넌트에서도 같은 태그명 배열이 부모 property로 바로 동기화된다.
 
 저장 데이터로 정리할 때는 `tagNames`를 기준으로 태그를 찾거나 생성하고, DB 연결 직전에만 id 배열로 변환한다. `TipDraftData`는 입력 배열에서 `tag_names`, `tagNames`, `tags` 키를 받아 내부의 `tagNames`로 정규화한다.
+
+## 부모 Livewire 사용 흐름
+
+부모 Livewire 컴포넌트는 태그 선택기의 내부 상태를 직접 다루지 않는다. 부모는 `public array $tagNames = []`만 선언하고, Blade에서 `wire:model="tagNames"`로 연결한다.
+
+```php
+public array $tagNames = [];
+```
+
+```blade
+<livewire:tags.tag-selector wire:model="tagNames" />
+```
+
+태그 선택기 내부에서는 `#[Modelable] public array $value`를 사용해 선택된 태그명을 부모 property로 동기화한다. 부모로 넘어오는 값은 아래처럼 기존 태그와 신규 태그 후보를 구분하지 않는 문자열 배열이다.
+
+```php
+['청소', '욕실정리']
+```
+
+부모가 해야 하는 일은 사용 목적에 따라 달라진다.
+
+| 사용 목적 | 부모 책임 |
+| --- | --- |
+| 생성/저장 폼 | `tagNames`를 검증하고 정규화한 뒤 저장 Action에 넘긴다 |
+| 검색/필터 폼 | `tagNames`를 필터 배열에 넣고 목록 쿼리에 넘긴다 |
+| 수정 폼 | 기존 연결 태그를 `selected`로 넘기고, 저장 시 최종 태그명 배열을 다시 처리한다 |
+
+### AI 팁 생성 모달
+
+AI 생성 모달은 태그 선택값을 AI 프롬프트의 참고 태그와 저장 시 필수 포함 태그로 사용한다.
+
+```blade
+<livewire:tags.tag-selector
+    :key="'ai-tip-tag-selector-'.$tagSelectorKey"
+    wire:model="tagNames"
+/>
+```
+
+부모 컴포넌트는 `tagNames`를 검증한다.
+
+```php
+protected function rules(): array
+{
+    return [
+        'tagNames' => ['array', 'max:20'],
+        'tagNames.*' => ['string', 'min:2', 'max:50'],
+    ];
+}
+```
+
+생성 액션에서는 검증된 태그명을 정규화해 프롬프트 빌더와 생성 서비스에 넘긴다.
+
+```php
+$requiredTagNames = $this->normalizeTagNames($validated['tagNames'] ?? []);
+
+$prompt = $buildPrompt(
+    prompt: $validated['prompt'] ?? '',
+    count: $validated['count'],
+    categoryName: $categoryName,
+    tagNames: $requiredTagNames,
+);
+
+$drafts = $generateTips(
+    prompt: $prompt,
+    categoryId: $validated['categoryId'],
+    requiredTagNames: $requiredTagNames,
+);
+```
+
+현재 구현 파일은 `src/app/Livewire/Console/Tips/AiCreateTip.php`와 `src/resources/views/livewire/console/tips/ai-create-tip.blade.php`다.
+
+### 관리자 팁 목록 필터
+
+관리자 팁 목록에서는 태그 선택기를 저장 입력이 아니라 검색 필터로 사용한다. 이 경우 신규 태그 후보를 만들면 안 되므로 `allow-create`를 `false`로 둔다.
+
+```blade
+<livewire:tags.tag-selector
+    wire:model="tagNames"
+    label=""
+    placeholder="태그 이름 검색"
+    name="tag_names"
+    :allow-create="false"
+    variant="compact"
+/>
+```
+
+부모 trait은 선택된 태그명 배열을 검색 조건으로 보관한다.
+
+```php
+public array $tagNames = [];
+```
+
+목록 조회 전에는 필터 배열의 `tag_names`로 변환한다.
+
+```php
+protected function tipListFilters(): array
+{
+    return [
+        'tag_names' => $this->tagNames,
+    ];
+}
+```
+
+목록 컴포넌트는 이 필터를 쿼리 객체에 넘긴다.
+
+```php
+TipListQuery::make()->paginate($this->tipListFilters(), 15);
+```
+
+현재 구현 파일은 `src/app/Livewire/Console/Tips/TipManagementList.php`, `src/app/Livewire/Concerns/ManagesTipListFilters.php`, `src/resources/views/livewire/console/tips/tip-management-list.blade.php`다.
 
 ## 동작 로직
 
