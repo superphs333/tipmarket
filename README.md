@@ -79,6 +79,85 @@ Laravel starter kit이 제공하는 기본 인증 기능은 대표 기능으로 
 
 상세 사용법은 [태그 선택기 문서](docs/templates/tag-selector.md)를 참고한다.
 
+### 팁 목록 필터 재사용 기준
+
+관리자 팁 관리처럼 다른 화면에서 팁 목록 검색/필터를 다시 사용할 때는 조회 쿼리와 화면 상태를 분리해서 붙인다. 실제 DB 조건은 `TipListQuery`가 담당하고, Livewire 화면은 `ManagesTipListFilters`가 검색 상태를 `filters` 배열로 변환해 넘긴다.
+
+| 사용 범위 | 사용하는 파일 | 역할 |
+| --- | --- | --- |
+| 팁 목록 필터 기본 | `src/app/Queries/Tips/TipListQuery.php` | 카테고리, 작성자, 상태, 노출, 기간, 태그, 키워드 조건을 `Tip` 쿼리로 변환 |
+| 입력값 정규화 | `src/app/Support/Filters/FilterNormalizer.php` | id, id 배열, 허용 문자열, 날짜, 키워드 값을 쿼리용 값으로 정리 |
+| 태그명 정규화 | `src/app/Support/Tags/TagNameNormalizer.php` | `tag_names` 배열의 공백, `#`, 중복 값을 정리 |
+| Livewire 필터 상태 | `src/app/Livewire/Concerns/ManagesTipListFilters.php` | `categoryId`, `tagNames`, `createdFrom`, `keyword` 같은 public property와 `search()`, `resetFilters()`, `tipListFilters()` 제공 |
+| 현재 사용 예시 | `src/app/Livewire/Console/Tips/TipManagementList.php` | 관리자 팁 관리 화면에서 `TipListQuery::paginate($this->tipListFilters())` 호출 |
+| 필터 UI 예시 | `src/resources/views/livewire/console/tips/tip-management-list.blade.php` | 카테고리, 태그, 기간, 검색어, 검색/초기화 UI |
+
+태그 필터 UI까지 함께 재사용하려면 아래 파일을 같이 사용한다.
+
+| 사용 범위 | 사용하는 파일 | 역할 |
+| --- | --- | --- |
+| 태그 선택 상태/검색 액션 | `src/app/Livewire/Tags/TagSelector.php` | 검색어, 검색 결과, 선택 태그, 신규 태그 후보 상태 관리 |
+| 태그 검색 쿼리 | `src/app/Services/Tags/TagSearchService.php` | 활성 태그를 이름 기준으로 검색하고 사용량/이름순으로 정렬 |
+| 태그 선택기 화면 | `src/resources/views/livewire/tags/tag-selector.blade.php` | 검색 입력, 결과 드롭다운, 선택된 태그 표시 |
+| Blade 컴포넌트 진입점 | `src/resources/views/components/tags/selector.blade.php` | `<x-tags.selector />` 형태로 Livewire 태그 선택기를 감싸는 템플릿 |
+
+새로운 Livewire 목록 파일에서 팁 필터를 붙일 때는 아래 순서로 구성한다.
+
+1. Livewire 컴포넌트에 `ManagesTipListFilters`를 사용한다.
+2. `render()` 또는 목록 조회 메서드에서 `TipListQuery::make()->paginate($this->tipListFilters(), 15)`를 호출한다.
+3. Blade에서 필터 입력을 trait의 public property에 `wire:model`로 연결한다.
+4. 검색 버튼은 `wire:click="search"`, 초기화 버튼은 `wire:click="resetFilters"`를 호출한다.
+5. 태그 필터가 필요하면 `livewire:tags.tag-selector`를 `wire:model="tagNames"`로 연결하고, 검색 필터 용도에서는 `:allow-create="false"`를 사용한다.
+
+```php
+use App\Livewire\Concerns\ManagesTipListFilters;
+use App\Queries\Tips\TipListQuery;
+use Illuminate\Contracts\View\View;
+use Livewire\Component;
+
+class PublicTipList extends Component
+{
+    use ManagesTipListFilters;
+
+    public function render(): View
+    {
+        return view('livewire.tips.public-tip-list', [
+            'tips' => TipListQuery::make()
+                ->paginate($this->tipListFilters(), 15),
+        ]);
+    }
+}
+```
+
+```blade
+<input
+    type="search"
+    wire:model="keyword"
+    wire:keydown.enter.prevent="search"
+    placeholder="검색어 입력"
+>
+
+<livewire:tags.tag-selector
+    wire:model="tagNames"
+    label=""
+    placeholder="태그 이름 검색"
+    name="tag_names"
+    :allow-create="false"
+    variant="compact"
+/>
+
+<button type="button" wire:click="resetFilters">초기화</button>
+<button type="button" wire:click="search">검색</button>
+
+@foreach ($tips as $tip)
+    {{ $tip->title }}
+@endforeach
+
+{{ $tips->links() }}
+```
+
+이 필터 구조는 현재 `Tip` 목록에 맞춰져 있다. 질문/답변/사용자 목록처럼 다른 도메인의 필터가 필요하면 `FilterNormalizer` 같은 공통 정규화 도구만 재사용하고, 도메인별 `QuestionListQuery`, `ManagesQuestionListFilters`처럼 별도 쿼리/상태 클래스로 분리한다.
+
 ## 기술 스택과 선택 이유
 
 | 기술 | 사용 이유 |
