@@ -68,6 +68,23 @@ test('admin users can manage tips', function () {
         ->assertSee('TIPS');
 });
 
+test('tip managers can see the tip search and list area', function () {
+    $contentManager = createConsoleUserWithRole(Role::CONTENT_MANAGER);
+
+    $this->actingAs($contentManager)
+        ->get(route('console.tips.index'))
+        ->assertOk()
+        ->assertSee('카테고리')
+        ->assertSee('노출')
+        ->assertSee('상태')
+        ->assertSee('태그')
+        ->assertSee('기간')
+        ->assertSee('검색어')
+        ->assertSee('팁 목록')
+        ->assertSee('초기화')
+        ->assertSee('검색');
+});
+
 test('tip managers can see the tip summary and creation actions', function () {
     $contentManager = createConsoleUserWithRole(Role::CONTENT_MANAGER);
 

@@ -4,6 +4,7 @@ namespace App\Livewire\Tags;
 
 use App\Models\Tag;
 use App\Services\Tags\TagSearchService;
+use App\Support\Tags\TagNameNormalizer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -20,6 +21,12 @@ class TagSelector extends Component
 
     // form submit 시 hidden input의 name값
     public string $name = 'tag_names';
+
+    // 신규 태그 후보 추가를 허용할지 결정한다. 검색 필터에서는 false로 사용한다.
+    public bool $allowCreate = true;
+
+    // 기본 작성 폼 UI와 검색 필터용 compact UI를 구분한다.
+    public string $variant = 'default';
 
     // 선택 가능한 최대 태그 개수. null이면 제한하지 않는다.
     public ?int $maxCount = null;
@@ -57,11 +64,15 @@ class TagSelector extends Component
         string $name = 'tag_names',
         ?int $maxCount = null,
         iterable $selected = [],
+        bool $allowCreate = true,
+        string $variant = 'default',
     ): void {
         $this->label = $label;
         $this->placeholder = $placeholder;
         $this->name = $name;
         $this->maxCount = $maxCount;
+        $this->allowCreate = $allowCreate;
+        $this->variant = $variant;
         $this->selectedTags = $this->normalizeTags($selected); // 내부에서 쓰기 좋은 배열 형태로 통일.
         $this->syncValue();
     }
@@ -127,6 +138,12 @@ class TagSelector extends Component
      */
     public function addNewTag(): void
     {
+        // 관리자 검색 필터처럼 신규 태그 생성을 허용하지 않는 사용처에서는
+        // Livewire 액션을 직접 호출하더라도 선택 목록이 바뀌지 않게 막는다.
+        if (! $this->allowCreate) {
+            return;
+        }
+
         // 사용자가 입력한 검색어를 저장 정책에 맞는 신규 태그명 후보로 정리한다.
         $tagName = $this->normalizeTagName($this->query);
 
@@ -282,6 +299,7 @@ class TagSelector extends Component
         $normalizedQuery = $this->normalizeTagName($this->query);
 
         return $normalizedQuery !== ''
+            && $this->allowCreate
             && mb_strlen($normalizedQuery) >= 2
             && ! $this->isMaxReached()
             && ! $this->resultsContainName($results, $normalizedQuery)
@@ -307,6 +325,7 @@ class TagSelector extends Component
         $normalizedNameForComparison = mb_strtolower($normalizedName);
 
         return $normalizedName !== ''
+            && $this->allowCreate
             && mb_strlen($normalizedName) >= 2
             && ! $this->isMaxReached()
             && ! Tag::query()
@@ -328,10 +347,7 @@ class TagSelector extends Component
      */
     private function normalizeTagName(string $tagName): string
     {
-        $tagName = trim($tagName);
-        $tagName = ltrim($tagName, '#');
-
-        return preg_replace('/\s+/u', '', $tagName) ?? $tagName;
+        return app(TagNameNormalizer::class)->normalize($tagName) ?? '';
     }
 
     /**

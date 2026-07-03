@@ -53,6 +53,25 @@ class Tip extends Model
 
     public const AUDIENCE_PRIVATE = 'private';
 
+    /**
+     * 팁 상태로 혀용하는 값 목록
+     * @var array<int, string>
+     */
+    public const STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_PUBLISHED,
+    ];
+
+    /**
+     * 팁 노출 대상으로 허용하는 값 목록
+     * @var array<int, string>
+     */
+    public const AUDIENCES = [
+        self::AUDIENCE_PUBLIC,
+        self::AUDIENCE_PREMIUM,
+        self::AUDIENCE_PRIVATE,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -83,4 +102,18 @@ class Tip extends Model
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
+
+    // 전달된 상태 값이 허용된 팁 상태인지 확인
+    public static function isValidStatus(string $status) : bool
+    {
+        return in_array($status, self::STATUSES, true);
+    }
+
+    // 전달된 노출 값이 허용된 audience 인지 확인
+    public static function isValidAudience(string $audience) : bool
+    {
+        return in_array($audience, self::AUDIENCES, true);
+    }
+
+
 }

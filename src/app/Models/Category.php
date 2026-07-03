@@ -75,9 +75,15 @@ class Category extends Model
     public function scopeForSelect(Builder $query): Builder
     {
         return $query
+            ->activeOrdered()
+            ->select(['id', 'name']);
+    }
+    // 활성 카테고리를 기본 노출 순서대로 정렬
+    public function scopeActiveOrdered(Builder $query) : Builder
+    {
+        return $query
             ->active()
             ->orderBy('sort_order')
-            ->orderBy('name')
-            ->select(['id', 'name']);
+            ->orderBy('name');
     }
 }

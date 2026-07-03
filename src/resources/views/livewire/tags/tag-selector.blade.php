@@ -1,19 +1,36 @@
-<div class="space-y-4">
+<div @class([
+    'space-y-4' => $variant !== 'compact',
+    'space-y-2' => $variant === 'compact',
+])>
     {{-- 검색어 입력 영역 --}}
     <div class="relative">
 
-        <label class="mb-2 block text-sm font-medium text-zinc-800 dark:text-zinc-100">
-            {{ $label }}
-        </label>
+        @if ($label !== '')
+            <label @class([
+                'block text-sm font-medium text-zinc-800 dark:text-zinc-100',
+                'mb-2' => $variant !== 'compact',
+                'mb-2' => $variant === 'compact',
+            ])>
+                {{ $label }}
+            </label>
+        @endif
 
         {{-- 검색 input --}}
         <div class="relative">
-            <flux:icon.magnifying-glass class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+            <flux:icon.magnifying-glass @class([
+                'pointer-events-none absolute top-1/2 size-5 -translate-y-1/2 text-zinc-400 dark:text-zinc-500',
+                'left-3' => $variant !== 'compact',
+                'left-4' => $variant === 'compact',
+            ]) />
 
             {{-- 검색 --}}
             <input
                 type="text"
-                class="block h-10 w-full rounded-lg border border-zinc-200 bg-white py-2 pl-10 pr-10 text-sm text-zinc-900 shadow-xs placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/15 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-white/20"
+                @class([
+                    'block w-full rounded-lg border border-zinc-200 bg-white py-2 pr-10 text-zinc-900 shadow-xs placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/15 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-white/20',
+                    'h-10 pl-10 text-sm' => $variant !== 'compact',
+                    'h-12 pl-12 text-sm' => $variant === 'compact',
+                ])
                 placeholder="{{ $placeholder }}"
                 {{-- query값 연결 --}}
                 wire:model="query"
@@ -140,13 +157,19 @@
         </div>
 
         {{-- 선택된 태그 목록 박스 --}}
-        <div class="min-h-24 rounded-lg border border-dashed border-zinc-200 p-3 dark:border-zinc-700">
+        <div @class([
+            'rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700',
+            'min-h-24 p-3' => $variant !== 'compact',
+            'min-h-12 p-2' => $variant === 'compact',
+        ])>
             @if (count($selectedTags) > 0)
                 <div class="flex flex-wrap gap-2">
                     {{-- 선택된 태그들을 badge 형태로 표시 --}}
                     @foreach ($selectedTags as $tag)
                         <span @class([
-                            'relative inline-flex items-center gap-1 rounded-md bg-blue-400/20 px-2 py-1 text-sm font-medium text-blue-800 dark:bg-blue-400/40 dark:text-blue-200',
+                            'relative inline-flex items-center gap-1 rounded-md bg-blue-400/20 font-medium text-blue-800 dark:bg-blue-400/40 dark:text-blue-200',
+                            'px-2 py-1 text-sm' => $variant !== 'compact',
+                            'px-2 py-1 text-xs' => $variant === 'compact',
                         ])>
                             @if ($tag['isNew'] ?? false)
                                 <span class="absolute -right-1 -top-1 flex size-3 items-center justify-center rounded-full bg-emerald-600 text-[8px] font-bold leading-none text-white ring-1 ring-white dark:bg-emerald-400 dark:text-emerald-950 dark:ring-zinc-900" aria-label="신규 태그" title="신규 태그">
@@ -164,7 +187,11 @@
                     @endforeach
                 </div>
             @else
-                <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                <div @class([
+                    'text-zinc-500 dark:text-zinc-400',
+                    'text-sm' => $variant !== 'compact',
+                    'text-xs' => $variant === 'compact',
+                ])>
                     아직 선택된 태그가 없습니다.
                 </div>
             @endif
@@ -177,7 +204,9 @@
 
         {{-- 안내 문구 --}}
         <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">
-            @if ($maxCount === null)
+            @if (! $allowCreate)
+                선택된 태그가 있는 팁만 검색합니다.
+            @elseif ($maxCount === null)
                 태그는 선택 사항입니다.
             @else
                 태그는 선택 사항이며 최대 {{ $maxCount }}개까지 선택할 수 있습니다.

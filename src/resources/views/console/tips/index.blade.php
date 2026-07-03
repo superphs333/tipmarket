@@ -36,6 +36,9 @@
                 </div>
             </div>
         </div>
+
+        {{-- 관리자 팁 검색/목록 영역이다. 검색 조건과 페이지네이션은 Livewire 컴포넌트가 관리한다. --}}
+        <livewire:console.tips.tip-management-list />
     </div>
 
     <livewire:console.tips.ai-create-tip />
