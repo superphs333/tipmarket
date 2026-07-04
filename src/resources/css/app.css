@@ -224,3 +224,307 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+@layer components {
+    .tip-edit-shell {
+        border: 1px solid var(--color-zinc-200);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 24px;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    }
+
+    .tip-edit-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 352px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .tip-edit-main,
+    .tip-edit-sidebar,
+    .tip-edit-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tip-edit-main,
+    .tip-edit-sidebar {
+        gap: 24px;
+        min-width: 0;
+    }
+
+    .tip-edit-panel {
+        gap: 20px;
+        border: 1px solid var(--color-zinc-200);
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .tip-edit-panel-title,
+    .tip-edit-label {
+        color: var(--color-zinc-900);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .tip-edit-field {
+        min-width: 0;
+    }
+
+    .tip-edit-control {
+        margin-top: 8px;
+        display: block;
+        width: 100%;
+        min-width: 0;
+        border: 1px solid var(--color-zinc-200);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 12px 14px;
+        color: var(--color-zinc-900);
+        font-size: 14px;
+        line-height: 1.5;
+        outline: none;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .tip-edit-control::placeholder {
+        color: var(--color-zinc-400);
+    }
+
+    .tip-edit-control:focus {
+        border-color: var(--color-zinc-400);
+        box-shadow: 0 0 0 3px rgb(24 24 27 / 0.10);
+    }
+
+    .tip-edit-textarea {
+        min-height: 520px;
+        resize: vertical;
+        line-height: 1.65;
+    }
+
+    .tip-edit-thumbnail {
+        aspect-ratio: 1.91 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed var(--color-zinc-200);
+        border-radius: 8px;
+        background: var(--color-zinc-50);
+        color: var(--color-zinc-500);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .tip-edit-thumbnail-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .tip-edit-file {
+        display: block;
+        width: 100%;
+        color: var(--color-zinc-600);
+        font-size: 14px;
+    }
+
+    .tip-edit-file::file-selector-button {
+        margin-right: 12px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--color-zinc-900);
+        padding: 8px 12px;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        transition: background-color 150ms ease;
+    }
+
+    .tip-edit-file::file-selector-button:hover {
+        background: var(--color-zinc-700);
+    }
+
+    .tip-edit-ghost-action {
+        align-self: flex-start;
+        color: var(--color-zinc-500);
+        font-size: 14px;
+        font-weight: 700;
+        transition: color 150ms ease;
+    }
+
+    .tip-edit-ghost-action:hover {
+        color: var(--color-zinc-900);
+    }
+
+    .tip-edit-help {
+        color: var(--color-zinc-500);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .tip-edit-check {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--color-zinc-200);
+        border-radius: 8px;
+        padding: 12px 14px;
+        color: var(--color-zinc-700);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .tip-edit-checkbox {
+        border-radius: 4px;
+        border-color: var(--color-zinc-300);
+        color: var(--color-zinc-900);
+    }
+
+    .tip-edit-actions {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid var(--color-zinc-100);
+        padding-top: 20px;
+    }
+
+    .tip-edit-button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .tip-edit-button-primary {
+        background: var(--color-zinc-900);
+        color: #ffffff;
+    }
+
+    .tip-edit-button-primary:hover {
+        background: var(--color-zinc-700);
+    }
+
+    .tip-edit-button-secondary {
+        border: 1px solid var(--color-zinc-200);
+        color: var(--color-zinc-700);
+    }
+
+    .tip-edit-button-secondary:hover {
+        background: var(--color-zinc-50);
+    }
+
+    .dark .tip-edit-shell,
+    .dark .tip-edit-panel {
+        border-color: var(--color-zinc-700);
+        background: var(--color-zinc-900);
+    }
+
+    .dark .tip-edit-panel-title,
+    .dark .tip-edit-label {
+        color: var(--color-zinc-100);
+    }
+
+    .dark .tip-edit-control {
+        border-color: var(--color-zinc-700);
+        background: var(--color-zinc-950);
+        color: var(--color-zinc-100);
+    }
+
+    .dark .tip-edit-control:focus {
+        border-color: var(--color-zinc-500);
+        box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12);
+    }
+
+    .dark .tip-edit-thumbnail {
+        border-color: var(--color-zinc-700);
+        background: var(--color-zinc-950);
+        color: var(--color-zinc-400);
+    }
+
+    .dark .tip-edit-file {
+        color: var(--color-zinc-300);
+    }
+
+    .dark .tip-edit-file::file-selector-button {
+        background: var(--color-zinc-100);
+        color: var(--color-zinc-900);
+    }
+
+    .dark .tip-edit-file::file-selector-button:hover {
+        background: #ffffff;
+    }
+
+    .dark .tip-edit-ghost-action,
+    .dark .tip-edit-help {
+        color: var(--color-zinc-400);
+    }
+
+    .dark .tip-edit-ghost-action:hover {
+        color: var(--color-zinc-100);
+    }
+
+    .dark .tip-edit-check {
+        border-color: var(--color-zinc-700);
+        color: var(--color-zinc-200);
+    }
+
+    .dark .tip-edit-actions {
+        border-color: var(--color-zinc-800);
+    }
+
+    .dark .tip-edit-button-primary {
+        background: var(--color-zinc-100);
+        color: var(--color-zinc-900);
+    }
+
+    .dark .tip-edit-button-primary:hover {
+        background: #ffffff;
+    }
+
+    .dark .tip-edit-button-secondary {
+        border-color: var(--color-zinc-700);
+        color: var(--color-zinc-200);
+    }
+
+    .dark .tip-edit-button-secondary:hover {
+        background: var(--color-zinc-800);
+    }
+
+    @media (max-width: 1180px) {
+        .tip-edit-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .tip-edit-sidebar {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .tip-edit-shell {
+            padding: 18px;
+        }
+
+        .tip-edit-sidebar {
+            display: flex;
+        }
+
+        .tip-edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .tip-edit-button {
+            width: 100%;
+        }
+    }
+}

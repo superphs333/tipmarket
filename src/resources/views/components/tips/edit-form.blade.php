@@ -1,0 +1,152 @@
+@props([
+    'categories' => [],
+    'tip',
+])
+
+{{-- 팁 수정 폼 UI 템플릿이다. 저장/업로드 처리는 아직 연결하지 않는다. --}}
+<div class="tip-edit-shell">
+    <div class="tip-edit-layout">
+        <section class="tip-edit-main">
+            <div class="tip-edit-field">
+                <label for="tip-title" class="tip-edit-label">
+                    제목
+                </label>
+                <input
+                    id="tip-title"
+                    type="text"
+                    name="title"
+                    value="{{ old('title', $tip->title) }}"
+                    maxlength="160"
+                    class="tip-edit-control"
+                >
+            </div>
+
+            <div class="tip-edit-field">
+                <label for="tip-content" class="tip-edit-label">
+                    본문
+                </label>
+                <textarea
+                    id="tip-content"
+                    name="content"
+                    rows="22"
+                    class="tip-edit-control tip-edit-textarea"
+                >{{ old('content', $tip->content) }}</textarea>
+            </div>
+        </section>
+
+        <aside class="tip-edit-sidebar">
+            <section class="tip-edit-panel">
+                <div class="tip-edit-panel-title">썸네일</div>
+
+                <div class="tip-edit-thumbnail">
+                    등록된 썸네일 없음
+                </div>
+
+                <div class="tip-edit-thumbnail-actions">
+                    <input
+                        type="file"
+                        name="thumbnail"
+                        accept="image/png,image/jpeg,image/webp"
+                        class="tip-edit-file"
+                    >
+
+                    <button
+                        type="button"
+                        class="tip-edit-ghost-action"
+                    >
+                        썸네일 삭제
+                    </button>
+
+                    <p class="tip-edit-help">
+                        권장 비율 1.91:1, jpg/png/webp 이미지를 사용합니다.
+                    </p>
+                </div>
+            </section>
+
+            <section class="tip-edit-panel">
+                <div class="tip-edit-field">
+                    <label for="tip-category" class="tip-edit-label">
+                        카테고리
+                    </label>
+                    <select
+                        id="tip-category"
+                        name="category_id"
+                        class="tip-edit-control"
+                    >
+                        <option value="">선택 안 함</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" @selected((string) old('category_id', $tip->category_id) === (string) $category->id)>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <x-tags.selector
+                    label="태그"
+                    name="tag_names"
+                    :max-count="20"
+                    :selected="$tip->relationLoaded('tags') ? $tip->tags : []"
+                />
+            </section>
+
+            <section class="tip-edit-panel">
+                <div class="tip-edit-field">
+                    <label for="tip-status" class="tip-edit-label">
+                        상태
+                    </label>
+                    <select
+                        id="tip-status"
+                        name="status"
+                        class="tip-edit-control"
+                    >
+                        <option value="draft" @selected(old('status', $tip->status) === 'draft')>임시저장</option>
+                        <option value="published" @selected(old('status', $tip->status) === 'published')>발행</option>
+                    </select>
+                </div>
+
+                <div class="tip-edit-field">
+                    <label for="tip-audience" class="tip-edit-label">
+                        노출
+                    </label>
+                    <select
+                        id="tip-audience"
+                        name="audience"
+                        class="tip-edit-control"
+                    >
+                        <option value="public" @selected(old('audience', $tip->audience) === 'public')>전체공개</option>
+                        <option value="premium" @selected(old('audience', $tip->audience) === 'premium')>프리미엄</option>
+                        <option value="private" @selected(old('audience', $tip->audience) === 'private')>비공개</option>
+                    </select>
+                </div>
+
+                <label class="tip-edit-check">
+                    <input
+                        type="checkbox"
+                        name="allow_comments"
+                        value="1"
+                        class="tip-edit-checkbox"
+                        @checked(old('allow_comments', $tip->allow_comments))
+                    >
+                    댓글 허용
+                </label>
+            </section>
+        </aside>
+    </div>
+
+    <div class="tip-edit-actions">
+        <a
+            href="{{ route('console.tips.index') }}"
+            wire:navigate
+            class="tip-edit-button tip-edit-button-secondary"
+        >
+            취소
+        </a>
+        <button
+            type="button"
+            class="tip-edit-button tip-edit-button-primary"
+        >
+            수정 저장
+        </button>
+    </div>
+</div>

@@ -23,8 +23,6 @@
             </div>
         </div>
 
-        <div class="rounded-lg border border-dashed border-zinc-200 bg-white p-6 text-sm text-zinc-500 shadow-xs dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
-            수정 폼은 다음 단계에서 공유 템플릿으로 연결합니다.
-        </div>
+        <x-tips.edit-form :tip="$tip" />
     </div>
 </x-layouts::console>
