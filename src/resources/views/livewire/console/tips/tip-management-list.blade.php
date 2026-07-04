@@ -207,7 +207,7 @@
                             </td>
                             {{--
                                 [제목]
-                                긴 제목은 말줄임 처리하고, 보조 식별자로 id를 표시한다.
+                                긴 제목은 말줄임 처리하고, 보조 식별자와 행 단위 보조 액션을 표시한다.
                             --}}
                             <td class="px-5 py-4">
                                 <div class="max-w-md">
@@ -216,6 +216,43 @@
                                     </div>
                                     <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                                         #{{ $tip->id }}
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-2 text-xs">
+                                        @if (\Illuminate\Support\Facades\Route::has('console.tips.edit'))
+                                            <a
+                                                href="{{ route('console.tips.edit', $tip) }}"
+                                                wire:navigate
+                                                class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                                            >
+                                                수정
+                                            </a>
+                                        @else
+                                            <span
+                                                title="수정 화면은 아직 준비 중입니다."
+                                                class="font-medium text-zinc-500 dark:text-zinc-400"
+                                            >
+                                                수정
+                                            </span>
+                                        @endif
+
+                                        <span class="text-zinc-300 dark:text-zinc-700">|</span>
+
+                                        @if (\Illuminate\Support\Facades\Route::has('console.tips.show'))
+                                            <a
+                                                href="{{ route('console.tips.show', $tip) }}"
+                                                wire:navigate
+                                                class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                                            >
+                                                본문이동
+                                            </a>
+                                        @else
+                                            <span
+                                                title="본문 화면은 아직 준비 중입니다."
+                                                class="font-medium text-zinc-500 dark:text-zinc-400"
+                                            >
+                                                본문이동
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -313,7 +350,7 @@
                             검색 조건에 맞는 결과가 없을 때 표시한다.
                         --}}
                         <tr>
-                            <td colspan="8" class="px-5 py-14 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                            <td colspan="9" class="px-5 py-14 text-center text-sm text-zinc-500 dark:text-zinc-400">
                                 조건에 맞는 팁이 없습니다.
                             </td>
                         </tr>
