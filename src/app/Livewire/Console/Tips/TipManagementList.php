@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Console\Tips;
 
+use App\Actions\Tips\ApplyTipBulkAction;
+use App\Livewire\Concerns\ManagesBulkSelection;
 use App\Livewire\Concerns\ManagesTipListFilters;
 use App\Models\Category;
 use App\Models\Tip;
@@ -10,6 +12,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Component;
+use Override;
 
 /**
  * 관리자 팁관리 화면의 목록/검색 UI 상태를 담당
@@ -20,12 +23,8 @@ use Livewire\Component;
 class TipManagementList extends Component
 {
     use ManagesTipListFilters;
+    use ManagesBulkSelection;
 
-    // 현재 선택된 팁 ID 목록
-    public array $selectedTipIds = [];
-
-    // 현재 화면의 전체 선택 체크박스 상태
-    public bool $selectAll = false;
 
     public function render() : View
     {
@@ -58,63 +57,7 @@ class TipManagementList extends Component
             ->get();
     }
 
-    /**
-     * 상단 전체 선택 체크박스를 눌렀을 때 실행됨
-     */
-    public function toggleSelectAll() : void
-    {
-        $visibleIds = $this->visibleTipIds();
 
-        // 모든 항목이 이미 선택된 상태 > 전체 해제
-        if($this->selectAll){
-            $this->selectedTipIds = array_values(
-                array_diff($this->selectedTipIds, $visibleIds)
-            ); // 전부 빠지게 됨.
-
-            $this->selectAll = false;
-
-            return;
-        }
-
-        // 전체 선택이 아니면 -> 현재 화면에 보이는 모든 ID를 선택 목록에 추가
-        $this->selectedTipIds = array_values(array_unique([
-            ...$this->selectedTipIds,
-            ...$visibleIds,
-        ]));
-
-        $this->selectAll = $this->hasSelectedAllVisibleTips();
-    }
-
-    /**
-     * 개별 체크박스를 변경하면 전체 선택 체크박스 상태도 다시 계산
-     */
-    public function updatedSelectedTipIds() : void
-    {
-        $this->selectAll = $this->hasSelectedAllVisibleTips();
-    }
-
-    /**
-     * 현재 화면의 모든 팁이 선택되어 있는지 계산
-     */
-    private function hasSelectedAllVisibleTips() : bool
-    {
-        $visibleIds = $this->visibleTipIds();
-
-        return count($visibleIds) > 0 && empty(array_diff($visibleIds, $this->selectedTipIds));
-    }
-
-    /**
-     * 현재 페이지에 보이는 팁 ID만 문자열 배열로 반환
-     *
-     * @return array<int, string>
-     */
-    private function visibleTipIds(): array
-    {
-        return collect($this->tips()->items())
-            ->pluck('id')
-            ->map(fn ($id) => (string) $id)
-            ->all();
-    }
 
     /**
      * 관리자 팁관리 화면에서 보여줄 상태 필터 라벨을 반환
@@ -142,5 +85,50 @@ class TipManagementList extends Component
             Tip::AUDIENCE_PREMIUM => '프리미엄',
             Tip::AUDIENCE_PRIVATE => '비공개',
         ];
+    }
+
+    #[Override]
+    protected function visibleIds(): array
+    {
+        return collect($this->tips()->items())
+            ->pluck('id')
+            ->map(fn ($id) => (string) $id)
+            ->all();
+    }
+
+    /**
+     * Bulk Action
+     */
+    #[Override]
+    protected function applySelectedBulkAction(): void
+    {
+        $bulkAction = app(ApplyTipBulkAction::class);
+
+        match ($this->bulkAction) {
+            'status' => $bulkAction->updateStatus($this->selectedIds, $this->bulkValue),
+            'audience' => $bulkAction->updateAudience($this->selectedIds, $this->bulkValue),
+            default => null,
+        };
+
+        $this->resetBulkSelectionState();
+    }
+
+    #[Override]
+    protected function deleteSelectedItems(): void
+    {
+        app(ApplyTipBulkAction::class)->delete($this->selectedIds);
+
+        $this->resetBulkSelectionState();
+        $this->resetPage();
+    }
+
+    /**
+     * 벌크 작업 후 선택 상태와 입력 상태를 초기화
+     */
+    private function resetBulkSelectionState(): void
+    {
+        $this->clearSelection();
+        $this->bulkAction = '';
+        $this->bulkValue = '';
     }
 }

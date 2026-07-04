@@ -140,6 +140,32 @@
             </div>
         </div>
 
+        {{--
+        [팁 벌크 액션 바]
+
+        type="tip":
+        - 공통 템플릿 내부에서 팁 전용 액션 구역을 보여준다.
+        - 현재 표시되는 액션은 상태 변경, 노출 변경, 삭제다.
+
+        selected-count:
+        - ManagesBulkSelection trait의 selectedIds 개수를 넘긴다.
+        - 0이면 액션 바가 숨겨진다.
+
+        status-options:
+        - 팁 상태 변경 select에 사용할 옵션이다.
+
+        audience-options:
+        - 팁 노출 변경 select에 사용할 옵션이다.
+        --}}
+        <x-console.bulk-action-bar
+            type="tip"
+            :selected-count="count($selectedIds)"
+            :bulk-action="$bulkAction"
+            :bulk-value="$bulkValue"
+            :status-options="$statusOptions"
+            :audience-options="$audienceOptions"
+        />
+
         <div class="overflow-x-auto">
             <table class="w-full min-w-[1000px] text-left text-sm">
                 {{--
@@ -175,7 +201,7 @@
                         <tr wire:key="console-tip-row-{{ $tip->id }}" class="transition hover:bg-zinc-50/80 dark:hover:bg-zinc-800/60">
                             <td  class="px-5 py-4">
                                 <input type="checkbox"
-                                    wire:model.live="selectedTipIds"
+                                    wire:model.live="selectedIds"
                                     value="{{ $tip->id }}"
                                 />
                             </td>
