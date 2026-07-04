@@ -25,10 +25,11 @@ final class GenerateTipsFromPrompt
         string $prompt,
         ?int $categoryId = null,
         array $requiredTagNames = [],
+        int $requestedCount = 1,
     ): array {
         $response = Http::withToken(config('services.openai.key'))
             ->acceptJson()
-            ->timeout((int) config('services.openai.tip_timeout', 30))
+            ->timeout($this->timeoutFor($requestedCount))
             ->post(config('services.openai.responses_endpoint'), [
                 'model' => config('services.openai.tip_model'),
                 'input' => $prompt,
@@ -153,5 +154,10 @@ final class GenerateTipsFromPrompt
             })
             ->values()
             ->all();
+    }
+
+    private function timeoutFor(int $requestedCount) : int
+    {
+        return min(max(60,$requestedCount*15),300);
     }
 }

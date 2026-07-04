@@ -2,32 +2,19 @@
 
 namespace App\Livewire\Console\Tips;
 
-use App\Actions\Tips\CreateAiGeneratedTips;
+
 use App\Concerns\TaxonomyValidationRules;
 use App\Models\Category;
-use App\Services\Ai\Tip\BuildTipGenerationPrompt;
-use App\Services\Ai\Tip\GenerateTipsFromPrompt;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
-use Throwable;
+use App\Jobs\GenerateAiTipsJob;
+use App\Models\AiTipGenerationRequest;
+
 
 /**
- * 콘솔 팁 관리 화면의 "AI로 팁 추가" 모달 상태와 생성 흐름을 조율한다.
- *
- * 사용자가 모달에서 입력한 값을 검증하고,
- * AI 팁 생성에 필요한 여러 전담 클래스를 순서대로 호출한다.
- *
- * 로직]
- * - 모달 입력 상태를 관리
- * - categoryId, tagNames, prompt, count 입력값을 검증한다.
- * - 선택된 categoryId, tagNames를 AI 프롬프트에 넣을 값으로 정리한다.
- * - BuildTipGenerationPrompt를 호출해 AI 요청 문장을 만든다.
- * - GenerateTipsFromPrompt를 호출해 TipDraftData[]를 생성한다.
- * - CreateAiGeneratedTips를 호출해 생성된 초안을 draft 팁으로 저장한다.
- * - 완료 후 화면에 결과 메시지를 표시한다.
+ * 콘솔 팁 관리 화면의 AI로 팁 추가 모달 상태와 생성 요청 접수를 조율
  */
 class AiCreateTip extends Component
 {
@@ -62,64 +49,42 @@ class AiCreateTip extends Component
         ];
     }
 
-    public function generate(
-        BuildTipGenerationPrompt $buildPrompt,
-        GenerateTipsFromPrompt $generateTips,
-        CreateAiGeneratedTips $createTips,
-    ): void {
+    public function generate(): void {
         $validated = $this->validate();
         $author = Auth::user();
 
-        if ($author === null) {
-            abort(403);
-        }
-
-        $categoryName = Category::query()
-            ->whereKey($validated['categoryId'])
-            ->value('name');
+        if($author === null) abort(403);
 
         $requiredTagNames = $this->normalizeTagNames($validated['tagNames'] ?? []);
 
-        $prompt = $buildPrompt(
-            prompt: $validated['prompt'] ?? '',
-            count: $validated['count'],
-            categoryName: $categoryName,
-            tagNames: $requiredTagNames,
+        // job이 나중에 참고할 생성 요청 정보 저장
+        $generationRequest = AiTipGenerationRequest::create([
+            'user_id' => $author->id,
+            'category_id' => $validated['categoryId'],
+            'status' => 'pending',
+            'prompt' => $validated['prompt'] ?? '',
+            'tag_names' => $requiredTagNames,
+            'requested_count' => $validated['count'],
+            'created_count' => 0,
+            'failed_count' => 0,
+        ]);
+
+        GenerateAiTipsJob::dispatch(
+            $generationRequest->id,
+            $generationRequest->requested_count,
         );
 
-        try {
-            $drafts = $generateTips(
-                prompt: $prompt,
-                categoryId: $validated['categoryId'],
-                requiredTagNames: $requiredTagNames,
-            );
-        } catch (Throwable $exception) {
-            Log::warning('AI tip generation failed.', [
-                'exception' => $exception::class,
-                'message' => $exception->getMessage(),
-            ]);
-
-            $this->addError('aiGeneration', 'AI 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
-
-            return;
-        }
-
-        $tips = $createTips(
-            author: $author,
-            drafts: $drafts,
+        Flux::toast(
+            variant : 'success',
+            text : 'AI 팁 생성을 시작했습니다. 완료되면 이 화면에서 확인할 수 있습니다.'
         );
 
-        // 저장된 Tip 모델 개수를 기준으로 사용자에게 결과를 알려준다.
-        Flux::toast(variant: 'success', text: count($tips).'개가 생성되었습니다.');
         Flux::modal('ai-tip-create')->close();
 
-        // 같은 모달에서 연속 생성할 때 이전 입력이 남지 않도록 초기화한다.
+        // 같은 모달에서 연속 생성할 때 이전 입력이 남지 않도록 초기화
         $this->reset(['categoryId', 'prompt', 'tagNames']);
         $this->count = 1;
         $this->tagSelectorKey++;
-
-        // 컨트롤러가 계산하는 총 개수/최근 수정일 요약이 즉시 갱신되도록 현재 목록 화면을 다시 연다.
-        $this->redirectRoute('console.tips.index');
     }
 
     public function render(): View
