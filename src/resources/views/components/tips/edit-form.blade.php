@@ -1,9 +1,3 @@
-@props([
-    'categories' => [],
-    'tip',
-])
-
-{{-- 팁 수정 폼 UI 템플릿이다. 저장/업로드 처리는 아직 연결하지 않는다. --}}
 <div class="tip-edit-shell">
     <div class="tip-edit-layout">
         <section class="tip-edit-main">
@@ -86,7 +80,7 @@
                     label="태그"
                     name="tag_names"
                     :max-count="20"
-                    :selected="$tip->relationLoaded('tags') ? $tip->tags : []"
+                    :selected="$tip->tags"
                 />
             </section>
 
