@@ -25,6 +25,9 @@ Route::middleware(['auth', 'verified', 'role:'.implode(',', Role::consoleAccessR
         Route::get('/tips', ConsoleTipController::class)
             ->can('viewAny', Tip::class)
             ->name('tips.index');
+
+        Route::get('/tips/{tip}/edit', [ConsoleTipController::class, 'edit'])
+            ->name('tips.edit');
     });
 
 require __DIR__.'/settings.php';

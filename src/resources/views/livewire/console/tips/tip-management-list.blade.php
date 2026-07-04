@@ -218,41 +218,19 @@
                                         #{{ $tip->id }}
                                     </div>
                                     <div class="mt-1 flex items-center gap-2 text-xs">
-                                        @if (\Illuminate\Support\Facades\Route::has('console.tips.edit'))
-                                            <a
-                                                href="{{ route('console.tips.edit', $tip) }}"
-                                                wire:navigate
-                                                class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-                                            >
-                                                수정
-                                            </a>
-                                        @else
-                                            <span
-                                                title="수정 화면은 아직 준비 중입니다."
-                                                class="font-medium text-zinc-500 dark:text-zinc-400"
-                                            >
-                                                수정
-                                            </span>
-                                        @endif
+                                        <a
+                                            href="{{ route('console.tips.edit', $tip) }}"
+                                            wire:navigate
+                                            class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                                        >
+                                            수정
+                                        </a>
 
                                         <span class="text-zinc-300 dark:text-zinc-700">|</span>
 
-                                        @if (\Illuminate\Support\Facades\Route::has('console.tips.show'))
-                                            <a
-                                                href="{{ route('console.tips.show', $tip) }}"
-                                                wire:navigate
-                                                class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-                                            >
-                                                본문이동
-                                            </a>
-                                        @else
-                                            <span
-                                                title="본문 화면은 아직 준비 중입니다."
-                                                class="font-medium text-zinc-500 dark:text-zinc-400"
-                                            >
-                                                본문이동
-                                            </span>
-                                        @endif
+                                        <span class="font-medium text-zinc-500 dark:text-zinc-400">
+                                            본문이동
+                                        </span>
                                     </div>
                                 </div>
                             </td>

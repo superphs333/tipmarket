@@ -22,4 +22,11 @@ class TipController extends Controller
                 : null,
         ]);
     }
+
+    public function edit(Tip $tip): View
+    {
+        return view('console.tips.edit', [
+            'tip' => $tip,
+        ]);
+    }
 }
