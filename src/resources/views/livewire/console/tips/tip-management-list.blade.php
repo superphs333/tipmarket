@@ -148,6 +148,13 @@
                 --}}
                 <thead class="border-b border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                     <tr>
+                        <th class="px-5 py-3">
+                            <input type="checkbox"
+                                wire:key="console-tip-select-all-{{ $this->selectAll ? 'checked' : 'unchecked' }}"
+                                wire:click="toggleSelectAll"
+                                @checked($this->selectAll)
+                            />
+                        </th>
                         <th class="px-5 py-3">제목</th>
                         <th class="px-4 py-3">작성자</th>
                         <th class="px-4 py-3">카테고리</th>
@@ -166,6 +173,12 @@
                             wire:key는 Livewire DOM diff 안정성을 위해 팁 id를 사용한다.
                         --}}
                         <tr wire:key="console-tip-row-{{ $tip->id }}" class="transition hover:bg-zinc-50/80 dark:hover:bg-zinc-800/60">
+                            <td  class="px-5 py-4">
+                                <input type="checkbox"
+                                    wire:model.live="selectedTipIds"
+                                    value="{{ $tip->id }}"
+                                />
+                            </td>
                             {{--
                                 [제목]
                                 긴 제목은 말줄임 처리하고, 보조 식별자로 id를 표시한다.
