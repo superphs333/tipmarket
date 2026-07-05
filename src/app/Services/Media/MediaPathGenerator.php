@@ -40,6 +40,7 @@ class MediaPathGenerator
             MediaCollection::ProfileAvatar => $this->profileAvatarPath($owner, $filename),
             MediaCollection::TipThumbnail => $this->ownedOrTemporaryPath('tips', 'thumbnail', $owner, $filename),
             MediaCollection::QuestionThumbnail => $this->ownedOrTemporaryPath('questions', 'thumbnail', $owner, $filename),
+            MediaCollection::TipBody => $this->ownedOrTemporaryPath('tips', 'body', $owner, $filename), // media/temporary/tips/body/01JZ....webp
         };
     }
 

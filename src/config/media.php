@@ -29,5 +29,11 @@ return [
             'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
             'visibility' => 'public',
         ],
+        // 본문 이미지
+        'tip_body' => [
+            'max_size' => 5 * 1024 * 1024,
+            'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+            'visibility' => 'public',
+        ],
     ],
 ];

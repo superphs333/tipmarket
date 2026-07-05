@@ -13,4 +13,6 @@
     data-height="{{ $height }}"
     {{-- 컴포넌트 사용시 추가로 넘긴 html 속성 받기 --}}
     {{ $attributes->class('tip-edit-control tip-edit-textarea') }}
+    {{-- 에디터 이미지 업로드 endpoint --}}
+    data-upload-url="{{ route('editor.images.store') }}"
 >{{ old($name, $value) }}</textarea>

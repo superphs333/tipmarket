@@ -11,4 +11,5 @@ enum MediaCollection: string
     case ProfileAvatar = 'profile_avatar';
     case TipThumbnail = 'tip_thumbnail';
     case QuestionThumbnail = 'question_thumbnail';
+    case TipBody = 'tip_body';
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Console\DashboardController as ConsoleDashboardController;
 use App\Http\Controllers\Console\TipController as ConsoleTipController;
+use App\Http\Controllers\EditorImageController;
 use App\Models\Role;
 use App\Models\Tip;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,15 @@ Route::middleware(['auth', 'verified', 'role:'.implode(',', Role::consoleAccessR
 
         Route::get('/tips/{tip}/edit', [ConsoleTipController::class, 'edit'])
             ->name('tips.edit');
+});
+
+/**
+ * 에디터 이미지
+ */
+Route::middleware(['auth', 'verified'])
+    ->group(function () {
+        Route::post('/editor/images', EditorImageController::class)
+            ->name('editor.images.store');
     });
 
 require __DIR__.'/settings.php';
