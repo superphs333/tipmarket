@@ -19,12 +19,12 @@
                 <label for="tip-content" class="tip-edit-label">
                     본문
                 </label>
-                <textarea
+                <x-editors.summernote
                     id="tip-content"
                     name="content"
-                    rows="22"
-                    class="tip-edit-control tip-edit-textarea"
-                >{{ old('content', $tip->content) }}</textarea>
+                    :value="$tip->content"
+                    placeholder="팁 몬문을 입력하세요."
+                />
             </div>
         </section>
 
