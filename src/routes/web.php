@@ -34,6 +34,20 @@ Route::middleware(['auth', 'verified', 'role:'.implode(',', Role::consoleAccessR
         Route::get('/tips/{tip}/edit', [ConsoleTipController::class, 'edit'])
             ->can('manageInConsole', Tip::class)
             ->name('tips.edit');
+
+        /**
+         * 콘솔 팁 저장/수정
+         *
+         * 작성/수정 화면은 console.tips.* 라우트 이름을 기준으로 action을 주입한다.
+         * 이 라우트들은 콘솔 전용 권한과 /console prefix가 필요하므로 콘솔 그룹 안에 둔다.
+         */
+        Route::post('/tips', [ConsoleTipController::class, 'store'])
+            ->can('manageInConsole', Tip::class)
+            ->name('tips.store');
+
+        Route::put('/tips/{tip}', [ConsoleTipController::class, 'update'])
+            ->can('manageInConsole', Tip::class)
+            ->name('tips.update');
     });
 
 /**

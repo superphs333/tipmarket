@@ -27,6 +27,14 @@
             </div>
         </div>
 
-        <x-tips.edit-form :tip="$tip" :mode="$mode" />
+        <x-tips.edit-form
+            :tip="$tip"
+            :mode="$mode"
+            :action="$isCreate
+                ? route('console.tips.store')
+                : route('console.tips.update', $tip)"
+            :method="$isCreate ? 'POST' : 'PUT'"
+            :cancel-url="route('console.tips.index')"
+        />
     </div>
 </x-layouts::console>
