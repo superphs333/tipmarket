@@ -29,15 +29,25 @@
         </section>
 
         <aside class="tip-edit-sidebar">
-            <section class="tip-edit-panel">
+            <section class="tip-edit-panel" x-data="tipThumbnailPreview">
                 <div class="tip-edit-panel-title">썸네일</div>
 
                 <div class="tip-edit-thumbnail">
-                    등록된 썸네일 없음
+                    <img
+                        x-show="previewUrl"
+                        x-bind:src="previewUrl"
+                        alt="선택한 썸네일 미리보기"
+                        class="tip-edit-thumbnail-image"
+                    >
+                    <span x-show="!previewUrl">
+                        등록된 썸네일 없음
+                    </span>
                 </div>
 
                 <div class="tip-edit-thumbnail-actions">
                     <input
+                        x-ref="thumbnailInput"
+                        x-on:change="setPreview"
                         type="file"
                         name="thumbnail"
                         accept="image/png,image/jpeg,image/webp"
@@ -47,6 +57,7 @@
                     <button
                         type="button"
                         class="tip-edit-ghost-action"
+                        x-on:click="clearPreview"
                     >
                         썸네일 삭제
                     </button>
@@ -144,3 +155,44 @@
         </button>
     </div>
 </div>
+
+@once
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('tipThumbnailPreview', () => ({
+                // 선택된 파일을 브라우저에서 미리보기 위한 임시 URL
+                previewUrl: null,
+
+                // <input type="file">의 change 이벤트가 발생했을 때 실행.
+                setPreview(event) {
+                    const file = event.target.files[0] ?? null;
+
+                    // 이전에 만든 임시 URL이 있으면 브라우저 메모리에서 해제(파일을 다시 선택할 때마다 누수 방지)
+                    if (this.previewUrl) {
+                        URL.revokeObjectURL(this.previewUrl);
+                        this.previewUrl = null;
+                    }
+
+                    // 파일 이미지인지 확인
+                    if (!file || !file.type.startsWith('image/')) {
+                        return;
+                    }
+
+                    // 브라우저 안에서만 접근 가능한 임시 URL 만들기
+                    this.previewUrl = URL.createObjectURL(file);
+                },
+
+                // 삭제 버튼 눌렀을 때 선택된 파일과 미리보기 이미지 초기화
+                clearPreview() {
+                    if (this.previewUrl) {
+                        URL.revokeObjectURL(this.previewUrl);
+                        this.previewUrl = null;
+                    }
+
+                    // 선택된 파일 초기화
+                    this.$refs.thumbnailInput.value = '';
+                },
+            }));
+        });
+    </script>
+@endonce
