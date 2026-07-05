@@ -17,6 +17,14 @@ class TipPolicy
     }
 
     /**
+     * Determine whether the user can manage tips in the console.
+     */
+    public function manageInConsole(User $user): bool
+    {
+        return $user->hasAnyRole(Role::tipManagementRoles());
+    }
+
+    /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Tip $tip): bool
@@ -29,7 +37,7 @@ class TipPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +45,8 @@ class TipPolicy
      */
     public function update(User $user, Tip $tip): bool
     {
-        return false;
+        return $tip->user_id === $user->id
+            || $user->hasAnyRole(Role::tipManagementRoles());
     }
 
     /**

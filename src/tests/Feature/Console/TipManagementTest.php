@@ -43,6 +43,22 @@ test('support users can enter the console but cannot manage tips', function () {
     $this->actingAs($support)
         ->get(route('console.tips.index'))
         ->assertForbidden();
+
+    $tip = Tip::query()->create([
+        'user_id' => $support->id,
+        'title' => '지원 담당자 팁',
+        'content' => '<p>지원 담당자 팁 본문</p>',
+        'status' => Tip::STATUS_DRAFT,
+        'audience' => Tip::AUDIENCE_PRIVATE,
+    ]);
+
+    $this->actingAs($support)
+        ->get(route('console.tips.create'))
+        ->assertForbidden();
+
+    $this->actingAs($support)
+        ->get(route('console.tips.edit', $tip))
+        ->assertForbidden();
 });
 
 test('content managers can manage tips', function () {
@@ -66,6 +82,25 @@ test('admin users can manage tips', function () {
         ->get(route('console.tips.index'))
         ->assertOk()
         ->assertSee('TIPS');
+});
+
+test('tip creation and update policy follows general ownership rules', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $admin = createConsoleUserWithRole(Role::ADMIN);
+
+    $tip = Tip::query()->create([
+        'user_id' => $owner->id,
+        'title' => '작성자 팁',
+        'content' => '<p>작성자 팁 본문</p>',
+        'status' => Tip::STATUS_DRAFT,
+        'audience' => Tip::AUDIENCE_PRIVATE,
+    ]);
+
+    expect($owner->can('create', Tip::class))->toBeTrue()
+        ->and($owner->can('update', $tip))->toBeTrue()
+        ->and($otherUser->can('update', $tip))->toBeFalse()
+        ->and($admin->can('update', $tip))->toBeTrue();
 });
 
 test('tip managers can see the tip search and list area', function () {
@@ -112,5 +147,32 @@ test('tip managers can see the tip summary and creation actions', function () {
         ->assertSee('최근 수정:')
         ->assertSee('2026-05-03')
         ->assertSee('AI로 팁 추가')
-        ->assertSee('Tip 추가');
+        ->assertSee('Tip 추가')
+        ->assertSee(route('console.tips.create'), false);
+});
+
+test('tip managers can use the shared create and edit form screens', function () {
+    $contentManager = createConsoleUserWithRole(Role::CONTENT_MANAGER);
+
+    $tip = Tip::query()->create([
+        'user_id' => $contentManager->id,
+        'title' => '수정할 팁',
+        'content' => '<p>수정할 팁 본문</p>',
+        'status' => Tip::STATUS_DRAFT,
+        'audience' => Tip::AUDIENCE_PRIVATE,
+    ]);
+
+    $this->actingAs($contentManager)
+        ->get(route('console.tips.create'))
+        ->assertOk()
+        ->assertSee('Tip 추가')
+        ->assertSee('새 팁을 작성합니다.')
+        ->assertSee('등록 저장');
+
+    $this->actingAs($contentManager)
+        ->get(route('console.tips.edit', $tip))
+        ->assertOk()
+        ->assertSee('Tip 수정')
+        ->assertSee('수정할 팁')
+        ->assertSee('수정 저장');
 });

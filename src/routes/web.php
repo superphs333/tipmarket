@@ -27,9 +27,14 @@ Route::middleware(['auth', 'verified', 'role:'.implode(',', Role::consoleAccessR
             ->can('viewAny', Tip::class)
             ->name('tips.index');
 
+        Route::get('/tips/create', [ConsoleTipController::class, 'create'])
+            ->can('manageInConsole', Tip::class)
+            ->name('tips.create');
+
         Route::get('/tips/{tip}/edit', [ConsoleTipController::class, 'edit'])
+            ->can('manageInConsole', Tip::class)
             ->name('tips.edit');
-});
+    });
 
 /**
  * 에디터 이미지

@@ -15,9 +15,14 @@ class EditForm extends Component
 
     public function __construct(
         public Tip $tip,
+        public string $mode = 'edit',
         null|array|Collection|EloquentCollection $categories = null,
     ) {
-        $this->tip->loadMissing('tags');
+        if ($this->tip->exists) {
+            $this->tip->loadMissing('tags');
+        } else {
+            $this->tip->setRelation('tags', new EloquentCollection);
+        }
 
         $this->categories = $categories !== null
             ? collect($categories)

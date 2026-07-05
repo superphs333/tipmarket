@@ -26,7 +26,8 @@
                     </flux:modal.trigger>
 
                     <flux:button
-                        type="button"
+                        :href="route('console.tips.create')"
+                        wire:navigate
                         variant="primary"
                         icon="plus"
                         class="w-full sm:w-auto"
