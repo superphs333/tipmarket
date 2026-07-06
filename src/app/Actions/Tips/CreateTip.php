@@ -32,7 +32,6 @@ final class CreateTip
                 'title' => $draft->title,
                 'content' => $draft->content,
                 'status' => Tip::STATUS_DRAFT,
-                'allow_comments' => true,
             ]);
 
             // tagIds는 기존 태그, tagNames는 AI나 폼이 제안한 신규 태그명 후보다.

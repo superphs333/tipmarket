@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Console;
 
+use App\Actions\Tips\SaveTip;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tips\SaveTipRequest;
 use App\Models\Tip;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 
 class TipController extends Controller
@@ -30,12 +33,13 @@ class TipController extends Controller
             'content' => '',
             'status' => Tip::STATUS_DRAFT,
             'audience' => Tip::AUDIENCE_PRIVATE,
-            'allow_comments' => true,
         ]), 'create');
     }
 
     public function edit(Tip $tip): View
     {
+        $tip->loadMissing('thumbnail');
+
         return $this->editView($tip, 'edit');
     }
 
@@ -50,5 +54,41 @@ class TipController extends Controller
             'pageTitle' => $isCreate ? 'Tip 추가' : 'Tip 수정',
             'pageDescription' => $isCreate ? '새 팁을 작성합니다.' : null,
         ]);
+    }
+
+    /**
+     * 콘솔에서 새 팁 저장
+     */
+    public function store(SaveTipRequest $request, SaveTip $saveTip): RedirectResponse
+    {
+        $tip = $saveTip(
+            author: $request->user(),
+            tip: new Tip,
+            data: $request->validated(),
+            thumbnail: $request->file('thumbnail'),
+            deleteThumbnail: $request->boolean('delete_thumbnail'),
+        );
+
+        return redirect()
+            ->route('console.tips.edit', $tip)
+            ->with('status', '팁이 저장되었습니다.');
+    }
+
+    /**
+     * 콘솔에서 기존 팁을 수정
+     */
+    public function update(SaveTipRequest $request, Tip $tip, SaveTip $saveTip): RedirectResponse
+    {
+        $tip = $saveTip(
+            author: $request->user(),
+            tip: $tip,
+            data: $request->validated(),
+            thumbnail: $request->file('thumbnail'),
+            deleteThumbnail: $request->boolean('delete_thumbnail'),
+        );
+
+        return redirect()
+            ->route('console.tips.edit', $tip)
+            ->with('status', '팁이 수정되었습니다.');
     }
 }

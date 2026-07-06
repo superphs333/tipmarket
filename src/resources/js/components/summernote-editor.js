@@ -35,6 +35,8 @@ function initSummernoteEditors(){
                     for(const file of files){
                         try{
                             const uploaded = await uploadEditorImage(file, $editor);
+                            // 업로드 성공한 media id를 hidden input에 누적
+                            appendUploadedImageInput($editor, uploaded.id);
                             $editor.summernote('insertImage',uploaded.url, function($images){
                                 // 화면 표시와 접근성을 위한 alt 
                                 $images.attr('alt',uploaded.alt || '');
@@ -69,6 +71,52 @@ function initSummernoteEditors(){
  */
 function csrfToken(){
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+/**
+ * 업로드 성공한 본문 이미지 media id를 hidden input으로 추가
+ * 
+ * @param {JQuery<HTMLElement>} $editor Summernote가 연결된 textarea
+ * @param {number|string} mediaId 서버가 반환한 media id
+ */
+function appendUploadedImageInput($editor, mediaId){
+    // 한 화면에 에디터가 여러개 생겨도 서로 hidden input이 섞이지 않기 위함
+    const wrapper = $editor.closest('[data-summernote-wrapper]')[0];
+
+    if (!wrapper) {
+        throw new Error('Summernote wrapper is missing.');
+    }
+
+    // 업로드된 이미지 id hidden input들을 담을 컨테이너를 찾기
+    const inputContainer = wrapper.querySelector('[data-uploaded-image-inputs]');
+
+    if(!inputContainer){
+        throw new Error('Uploaded image input container is missing.');
+    }
+
+    /**
+     * hidden input name을 textarea의 data속성에서 읽기 
+     * 
+     * - 기본값은 uploaded_body_image_ids[]
+     * +) 나중에 다른 에디터에서 다른 이름을 써야 하면 Blade에서 data속성만 바꾸면 됨
+     */
+    const inputName = $editor.data('uploaded-image-input-name') || 'uploaded_body_image_ids[]';
+
+    // 문자열로 통일
+    const value = String(mediaId);
+
+    // 같은 media id가 이미 hidden input으로 들어가 있는지 확인.
+    const alreadyExists = Array.from(inputContainer.querySelectorAll('input[type="hidden"]'))
+        .some((input) => input.value === value);
+    if(alreadyExists) return;
+
+    // 실제 서버로 전송될 input을 만든다. 
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = inputName;
+    input.value = value;
+
+    inputContainer.appendChild(input);
 }
 
 /**

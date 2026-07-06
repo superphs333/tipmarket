@@ -51,28 +51,42 @@
                 <section
                     class="tip-edit-panel"
                     x-data="{
-                        previewUrl: null,
+                        previewUrl: @js($tip->thumbnail?->publicUrl()),
+                        selectedObjectUrl: null,
                         setPreview(event) {
                             const file = event.target.files[0] ?? null;
 
-                            if (this.previewUrl) {
-                                URL.revokeObjectURL(this.previewUrl);
-                                this.previewUrl = null;
-                            }
-
-                            if (!file || !file.type.startsWith('image/')) {
+                            // 파일을 선택하지 않았거나, 이미지 파일이 아니면 미리보기 바꾸지 x
+                            if (! file || ! file.type.startsWith('image/')) {
                                 return;
                             }
 
-                            this.previewUrl = URL.createObjectURL(file);
-                        },
-                        clearPreview() {
-                            if (this.previewUrl) {
-                                URL.revokeObjectURL(this.previewUrl);
-                                this.previewUrl = null;
+                            // 이전에 선택한 파일 미리보기 blob URL이 있으면 브라우저 메모리에서 정리한다.
+                            if (this.selectedObjectUrl) {
+                                URL.revokeObjectURL(this.selectedObjectUrl);
                             }
 
+                            // 미리보기
+                            this.selectedObjectUrl = URL.createObjectURL(file);
+                            this.previewUrl = this.selectedObjectUrl;
+
+                            // 삭제 요청 플러그 0으로 돌림
+                            this.$refs.deleteThumbnailInput.value = '0';
+                        },
+                        clearPreview() {
+                            // 새로 선택한 파일 미리보기 blob URL이 있으면 브라우저 메모리에서 정리한다.
+                            if (this.selectedObjectUrl) {
+                                URL.revokeObjectURL(this.selectedObjectUrl);
+                                this.selectedObjectUrl = null;
+                            }
+
+                            // 화면에서 미리보기 이미지 제거
+                            this.previewUrl = null;
+
+                            // 새로 선택한 파일이 있다면 file input을 비움
                             this.$refs.thumbnailInput.value = '';
+
+                            this.$refs.deleteThumbnailInput.value = '1';
                         },
                     }"
                 >
@@ -98,6 +112,13 @@
                             name="thumbnail"
                             accept="image/png,image/jpeg,image/webp"
                             class="tip-edit-file"
+                        >
+
+                        <input
+                            x-ref="deleteThumbnailInput"
+                            type="hidden"
+                            name="delete_thumbnail"
+                            value="0"
                         >
 
                         <button
@@ -170,17 +191,6 @@
                             <option value="private" @selected(old('audience', $tip->audience) === 'private')>비공개</option>
                         </select>
                     </div>
-
-                    <label class="tip-edit-check">
-                        <input
-                            type="checkbox"
-                            name="allow_comments"
-                            value="1"
-                            class="tip-edit-checkbox"
-                            @checked(old('allow_comments', $tip->allow_comments))
-                        >
-                        댓글 허용
-                    </label>
                 </section>
             </aside>
         </div>

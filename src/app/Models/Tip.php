@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\MediaCollection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -17,7 +20,6 @@ use Illuminate\Support\Carbon;
  * @property string $status
  * @property string $audience
  * @property int|null $category_id
- * @property bool $allow_comments
  * @property int $view_count
  * @property int $like_count
  * @property int $bookmark_count
@@ -33,7 +35,6 @@ use Illuminate\Support\Carbon;
     'content',
     'status',
     'audience',
-    'allow_comments',
     'view_count',
     'like_count',
     'bookmark_count',
@@ -55,6 +56,7 @@ class Tip extends Model
 
     /**
      * 팁 상태로 혀용하는 값 목록
+     *
      * @var array<int, string>
      */
     public const STATUSES = [
@@ -64,6 +66,7 @@ class Tip extends Model
 
     /**
      * 팁 노출 대상으로 허용하는 값 목록
+     *
      * @var array<int, string>
      */
     public const AUDIENCES = [
@@ -71,13 +74,6 @@ class Tip extends Model
         self::AUDIENCE_PREMIUM,
         self::AUDIENCE_PRIVATE,
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'allow_comments' => 'boolean',
-        ];
-    }
 
     // 팁 작성자
     public function user(): BelongsTo
@@ -104,16 +100,35 @@ class Tip extends Model
     }
 
     // 전달된 상태 값이 허용된 팁 상태인지 확인
-    public static function isValidStatus(string $status) : bool
+    public static function isValidStatus(string $status): bool
     {
         return in_array($status, self::STATUSES, true);
     }
 
     // 전달된 노출 값이 허용된 audience 인지 확인
-    public static function isValidAudience(string $audience) : bool
+    public static function isValidAudience(string $audience): bool
     {
         return in_array($audience, self::AUDIENCES, true);
     }
 
+    // 팁에 연결된 모든 미디어 파일
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'owner');
+    }
 
+    // 현재 팁 썸네일 이미지
+    public function thumbnail(): MorphOne
+    {
+        return $this->morphOne(Media::class, 'owner')
+            ->where('collection', MediaCollection::TipThumbnail->value)
+            ->latestOfMany();
+    }
+
+    // 팁 본문에 삽입된 이미지 목록
+    public function bodyImages() : MorphMany
+    {
+        return $this->morphMany(Media::class, 'owner')
+            ->where('collection', MediaCollection::TipBody->value);
+    }
 }
