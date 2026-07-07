@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Console\DashboardController as ConsoleDashboardController;
 use App\Http\Controllers\Console\TipController as ConsoleTipController;
+use App\Http\Controllers\TipController;
 use App\Http\Controllers\EditorImageController;
 use App\Models\Role;
 use App\Models\Tip;
@@ -58,5 +59,11 @@ Route::middleware(['auth', 'verified'])
         Route::post('/editor/images', EditorImageController::class)
             ->name('editor.images.store');
     });
+
+/**
+ * 프론트 Tip 관련 : /tip/
+ */
+Route::get('/tip/{tip}', [TipController::class, 'show'])
+    ->name('tips.show');
 
 require __DIR__.'/settings.php';
