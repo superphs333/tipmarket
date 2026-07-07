@@ -131,4 +131,6 @@ class Tip extends Model
         return $this->morphMany(Media::class, 'owner')
             ->where('collection', MediaCollection::TipBody->value);
     }
+
+
 }

@@ -9,6 +9,7 @@ use App\Models\Tip;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
+use Stevebauman\Purify\Facades\Purify;
 
 class TipController extends Controller
 {
@@ -61,10 +62,12 @@ class TipController extends Controller
      */
     public function store(SaveTipRequest $request, SaveTip $saveTip): RedirectResponse
     {
+        $data = $this->sanitizeTipData($request->validated());
+
         $tip = $saveTip(
             author: $request->user(),
             tip: new Tip,
-            data: $request->validated(),
+            data: $data,
             thumbnail: $request->file('thumbnail'),
             deleteThumbnail: $request->boolean('delete_thumbnail'),
         );
@@ -79,10 +82,12 @@ class TipController extends Controller
      */
     public function update(SaveTipRequest $request, Tip $tip, SaveTip $saveTip): RedirectResponse
     {
+        $data = $this->sanitizeTipData($request->validated());
+
         $tip = $saveTip(
             author: $request->user(),
             tip: $tip,
-            data: $request->validated(),
+            data: $data,
             thumbnail: $request->file('thumbnail'),
             deleteThumbnail: $request->boolean('delete_thumbnail'),
         );
@@ -90,5 +95,18 @@ class TipController extends Controller
         return redirect()
             ->route('console.tips.edit', $tip)
             ->with('status', '팁이 수정되었습니다.');
+    }
+
+    /**
+     * 검증된 팁 저장 데이터를 DB 저장 전에 정화한다.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function sanitizeTipData(array $data): array
+    {
+        $data['content'] = Purify::config('tip_content')->clean((string) $data['content']);
+
+        return $data;
     }
 }

@@ -11,9 +11,10 @@
             <x-tips.show.toc />
 
             <article class="tip-show__article">
-                <x-tips.show.header />
-                <x-tips.show.content />
-                <x-tips.show.tags />
+                <x-tips.show.header :tip="$tip" />
+                <x-tips.show.thumbnail :tip="$tip" />
+                <x-tips.show.content :tip="$tip" />
+                <x-tips.show.tags :tags="$tip->tags" />
                 <x-tips.show.reactions />
                 <x-tips.show.comments />
             </article>
