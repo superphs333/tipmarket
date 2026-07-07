@@ -8,20 +8,17 @@
         </div>
 
         <div class="tip-show__layout">
-            <x-tips.show.toc variant="desktop" />
+            <x-tips.show.toc />
 
             <article class="tip-show__article">
                 <x-tips.show.header />
-                <x-tips.show.toc variant="mobile" />
                 <x-tips.show.content />
                 <x-tips.show.tags />
                 <x-tips.show.reactions />
                 <x-tips.show.comments />
             </article>
 
-            <x-tips.show.actions variant="desktop" />
+            <x-tips.show.actions />
         </div>
-
-        <x-tips.show.actions variant="mobile" />
     </section>
 </x-layouts.front>
