@@ -19,6 +19,9 @@
 
         <div class="flex items-center gap-2 text-sm font-medium">
             @auth
+                <a href="{{ route('tips.create') }}" class="rounded-md bg-zinc-900 px-3 py-2 text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200" wire:navigate>
+                    팁 작성
+                </a>
                 <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:hover:text-white" wire:navigate>
                     마이페이지
                 </a>

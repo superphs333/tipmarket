@@ -10,6 +10,33 @@ use Illuminate\Http\RedirectResponse;
 
 class TipController extends Controller
 {
+    public function create(): View
+    {
+        return view('tips.create', [
+            'tip' => new Tip([
+                'title' => '',
+                'content' => '',
+                'status' => Tip::STATUS_DRAFT,
+                'audience' => Tip::AUDIENCE_PRIVATE,
+            ]),
+        ]);
+    }
+
+    public function store(SaveTipRequest $request, SaveTip $saveTip): RedirectResponse
+    {
+        $tip = $saveTip(
+            author: $request->user(),
+            tip: new Tip,
+            data: $request->validated(),
+            thumbnail: $request->file('thumbnail'),
+            deleteThumbnail: $request->boolean('delete_thumbnail'),
+        );
+
+        return redirect()
+            ->route('tips.show', $tip)
+            ->with('status', '팁이 저장되었습니다.');
+    }
+
     public function show(Tip $tip): View
     {
         $tip->load([

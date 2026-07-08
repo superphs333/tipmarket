@@ -65,6 +65,14 @@ Route::middleware(['auth', 'verified'])
  */
 Route::middleware(['auth', 'verified'])
     ->group(function () {
+        Route::get('/tips/create', [TipController::class, 'create'])
+            ->can('create', Tip::class)
+            ->name('tips.create');
+
+        Route::post('/tips', [TipController::class, 'store'])
+            ->can('create', Tip::class)
+            ->name('tips.store');
+
         Route::get('/tip/{tip}/edit', [TipController::class, 'edit'])
             ->can('update', 'tip')
             ->name('tips.edit');

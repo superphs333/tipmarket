@@ -185,6 +185,40 @@ test('tip managers can use the shared create and edit form screens', function ()
         ->assertSee('수정 저장');
 });
 
+test('authenticated users can create tips from the front page link', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertOk()
+        ->assertSee(route('tips.create'), false)
+        ->assertSee('팁 작성');
+
+    $this->actingAs($user)
+        ->get(route('tips.create'))
+        ->assertOk()
+        ->assertSee('팁 작성')
+        ->assertSee(route('tips.store'), false)
+        ->assertSee('등록 저장');
+
+    $this->actingAs($user)
+        ->post(route('tips.store'), [
+            'title' => '프론트에서 작성한 팁',
+            'content' => '<p>프론트 작성 화면에서 저장합니다.</p>',
+            'category_id' => '',
+            'status' => Tip::STATUS_DRAFT,
+            'audience' => Tip::AUDIENCE_PRIVATE,
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('status', '팁이 저장되었습니다.');
+
+    $tip = Tip::query()->where('title', '프론트에서 작성한 팁')->firstOrFail();
+
+    expect($tip->user_id)->toBe($user->id)
+        ->and($tip->status)->toBe(Tip::STATUS_DRAFT)
+        ->and($tip->audience)->toBe(Tip::AUDIENCE_PRIVATE);
+});
+
 test('tip owners can see edit and delete actions on the tip detail page', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
