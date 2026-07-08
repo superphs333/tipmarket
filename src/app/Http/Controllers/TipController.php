@@ -7,6 +7,8 @@ use App\Http\Requests\Tips\SaveTipRequest;
 use App\Models\Tip;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Services\Tips\TipViewService;
+use Illuminate\Http\Request;
 
 class TipController extends Controller
 {
@@ -37,8 +39,12 @@ class TipController extends Controller
             ->with('status', '팁이 저장되었습니다.');
     }
 
-    public function show(Tip $tip): View
+    // 팁 상세 페이지 표시
+    public function show(Request $request, Tip $tip, TipViewService $tipViewService): View
     {
+        // 조회수 기록
+        $tipViewService->record($tip, $request);
+
         $tip->load([
             'user.profileAvatar',
             'thumbnail',

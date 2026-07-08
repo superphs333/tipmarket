@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -44,6 +45,7 @@ use App\Models\User;
 class Tip extends Model
 {
     use SoftDeletes;
+    use HasFactory;
 
     public const STATUS_DRAFT = 'draft';
 

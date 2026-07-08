@@ -33,7 +33,7 @@ class TipPolicy
     public function view(?User $user, Tip $tip): Response
     {
         // 작성자와 팁 관리 권한자는 공개 상태와 무관하게 상세를 볼 수 있음
-        if($user !== null && ($tip->isOwnedBy($user)) || $user->hasAnyRole(Role::tipManagementRoles())){
+        if ($user !== null && ($tip->isOwnedBy($user) || $user->hasAnyRole(Role::tipManagementRoles()))) {
             return Response::allow();
         }
 
