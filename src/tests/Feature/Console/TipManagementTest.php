@@ -219,6 +219,26 @@ test('authenticated users can create tips from the front page link', function ()
         ->and($tip->audience)->toBe(Tip::AUDIENCE_PRIVATE);
 });
 
+test('tip content keeps summernote image size styles while removing unsafe styles', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('tips.store'), [
+            'title' => '이미지 크기 저장 팁',
+            'content' => '<p>본문</p><img src="/body.jpg" alt="본문 이미지" style="width: 48%; height: auto; position: fixed;" data-media-id="123">',
+            'category_id' => '',
+            'status' => Tip::STATUS_DRAFT,
+            'audience' => Tip::AUDIENCE_PRIVATE,
+        ])
+        ->assertRedirect();
+
+    $tip = Tip::query()->where('title', '이미지 크기 저장 팁')->firstOrFail();
+
+    expect($tip->content)->toContain('style="width:48%;height:auto;"')
+        ->and($tip->content)->toContain('data-media-id="123"')
+        ->and($tip->content)->not->toContain('position');
+});
+
 test('tip owners can see edit and delete actions on the tip detail page', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();

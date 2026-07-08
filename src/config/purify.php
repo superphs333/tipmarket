@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Purify\TipContentDefinition;
+use Stevebauman\Purify\Cache\CacheDefinitionCache;
 
 return [
 
@@ -80,7 +81,7 @@ return [
             // - strong, b, em, i, u: 기본 텍스트 강조
             // - blockquote, pre, code: 인용문과 코드 표현
             // - a[href|title|target|rel]: 링크와 링크 보안 보조 속성
-            // - img[src|alt|title|width|height|data-media-id]: 본문 이미지, 표시 속성,
+            // - img[src|alt|title|width|height|style|data-media-id]: 본문 이미지, 표시 속성,
             //   그리고 저장 후 본문 이미지 media를 Tip에 연결하기 위한 내부 식별자
             //
             // 의도적으로 script, iframe, style, onclick, onerror 같은 태그/속성은 허용하지 않습니다.
@@ -102,7 +103,7 @@ return [
                 'pre',
                 'code',
                 'a[href|title|target|rel]',
-                'img[src|alt|title|width|height|data-media-id]',
+                'img[src|alt|title|width|height|style|data-media-id]',
             ]),
 
             // 명시적으로 금지할 태그 목록입니다.
@@ -110,8 +111,9 @@ return [
             'HTML.ForbiddenElements' => '',
 
             // 허용할 inline CSS 속성입니다.
-            // 사용자 입력 style은 레이아웃 깨짐과 보안 우회 여지가 있어 팁 본문에서는 허용하지 않습니다.
-            'CSS.AllowedProperties' => [],
+            // Summernote의 이미지 크기 조절은 style width/height로 남을 수 있으므로
+            // img 크기 표시 보존에 필요한 속성만 허용합니다.
+            'CSS.AllowedProperties' => 'width,height',
 
             // 줄바꿈을 자동으로 p 태그로 감쌀지 여부입니다.
             // Summernote 같은 에디터가 이미 p, br을 생성하므로 자동 문단 생성을 끕니다.
@@ -168,7 +170,7 @@ return [
         'driver' => env('CACHE_STORE', env('CACHE_DRIVER', 'file')),
 
         // Laravel cache store를 통해 HTMLPurifier 정의 캐시를 저장하는 구현체입니다.
-        'cache' => \Stevebauman\Purify\Cache\CacheDefinitionCache::class,
+        'cache' => CacheDefinitionCache::class,
     ],
 
     // 파일시스템 디스크에 직접 serializer 캐시를 저장하고 싶을 때 사용할 수 있는 대안 설정입니다.

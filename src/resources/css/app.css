@@ -371,6 +371,11 @@ select:focus[data-flux-control] {
         padding-left: 22px;
     }
 
+    .tip-show__content img {
+        max-width: 100%;
+        height: auto;
+    }
+
     .tip-show__section {
         display: grid;
         gap: 14px;
