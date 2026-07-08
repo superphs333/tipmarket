@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Console\DashboardController as ConsoleDashboardController;
 use App\Http\Controllers\Console\TipController as ConsoleTipController;
-use App\Http\Controllers\TipController;
 use App\Http\Controllers\EditorImageController;
+use App\Http\Controllers\TipController;
 use App\Models\Role;
 use App\Models\Tip;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +63,21 @@ Route::middleware(['auth', 'verified'])
 /**
  * 프론트 Tip 관련 : /tip/
  */
+Route::middleware(['auth', 'verified'])
+    ->group(function () {
+        Route::get('/tip/{tip}/edit', [TipController::class, 'edit'])
+            ->can('update', 'tip')
+            ->name('tips.edit');
+
+        Route::put('/tip/{tip}', [TipController::class, 'update'])
+            ->can('update', 'tip')
+            ->name('tips.update');
+
+        Route::delete('/tip/{tip}', [TipController::class, 'destroy'])
+            ->can('delete', 'tip')
+            ->name('tips.destroy');
+    });
+
 Route::get('/tip/{tip}', [TipController::class, 'show'])
     ->name('tips.show');
 

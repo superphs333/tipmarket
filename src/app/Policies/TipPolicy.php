@@ -54,7 +54,8 @@ class TipPolicy
      */
     public function delete(User $user, Tip $tip): bool
     {
-        return false;
+        return $tip->user_id === $user->id
+            || $user->hasAnyRole(Role::tipManagementRoles());
     }
 
     /**

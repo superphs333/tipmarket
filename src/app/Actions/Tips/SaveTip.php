@@ -7,6 +7,7 @@ use App\Models\Tip;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Stevebauman\Purify\Facades\Purify;
 
 /**
  * 팁 작성/수정 폼 입력을 실제 Tip 레코드와 태그 연결에 반영한다.
@@ -58,7 +59,7 @@ final class SaveTip
             $tip->fill([
                 'category_id' => $this->normalizeCategoryId($data['category_id'] ?? null),
                 'title' => $data['title'],
-                'content' => $data['content'],
+                'content' => $this->sanitizeContent($data['content']),
                 'status' => $data['status'],
                 'audience' => $data['audience'],
             ]);
@@ -69,7 +70,7 @@ final class SaveTip
             ($this->attachTipBodyImages)(
                 tip: $tip,
                 uploadedBy: $author,
-                content: $data['content'],
+                content: $tip->content,
                 uploadedBodyImageIds: $data['uploaded_body_image_ids'] ?? [],
             );
 
@@ -105,5 +106,10 @@ final class SaveTip
         }
 
         return (int) $categoryId;
+    }
+
+    private function sanitizeContent(string $content): string
+    {
+        return Purify::config('tip_content')->clean($content);
     }
 }

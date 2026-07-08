@@ -104,8 +104,11 @@ test('tip creation and update policy follows general ownership rules', function 
 
     expect($owner->can('create', Tip::class))->toBeTrue()
         ->and($owner->can('update', $tip))->toBeTrue()
+        ->and($owner->can('delete', $tip))->toBeTrue()
         ->and($otherUser->can('update', $tip))->toBeFalse()
-        ->and($admin->can('update', $tip))->toBeTrue();
+        ->and($otherUser->can('delete', $tip))->toBeFalse()
+        ->and($admin->can('update', $tip))->toBeTrue()
+        ->and($admin->can('delete', $tip))->toBeTrue();
 });
 
 test('tip managers can see the tip search and list area', function () {
@@ -180,6 +183,84 @@ test('tip managers can use the shared create and edit form screens', function ()
         ->assertSee('Tip 수정')
         ->assertSee('수정할 팁')
         ->assertSee('수정 저장');
+});
+
+test('tip owners can see edit and delete actions on the tip detail page', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    $tip = Tip::query()->create([
+        'user_id' => $owner->id,
+        'title' => '상세 액션 팁',
+        'content' => '<p>상세에서 수정 삭제 버튼을 확인합니다.</p>',
+        'status' => Tip::STATUS_PUBLISHED,
+        'audience' => Tip::AUDIENCE_PUBLIC,
+    ]);
+
+    $this->get(route('tips.show', $tip))
+        ->assertOk()
+        ->assertDontSee(route('tips.edit', $tip), false)
+        ->assertDontSee(route('tips.destroy', $tip), false);
+
+    $this->actingAs($otherUser)
+        ->get(route('tips.show', $tip))
+        ->assertOk()
+        ->assertDontSee(route('tips.edit', $tip), false)
+        ->assertDontSee(route('tips.destroy', $tip), false);
+
+    $this->actingAs($owner)
+        ->get(route('tips.show', $tip))
+        ->assertOk()
+        ->assertSee(route('tips.edit', $tip), false)
+        ->assertSee(route('tips.destroy', $tip), false)
+        ->assertSee('팁 삭제');
+});
+
+test('tip owners can use front edit and delete routes', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    $tip = Tip::query()->create([
+        'user_id' => $owner->id,
+        'title' => '상세에서 수정할 팁',
+        'content' => '<p>상세 수정 대상입니다.</p>',
+        'status' => Tip::STATUS_PUBLISHED,
+        'audience' => Tip::AUDIENCE_PUBLIC,
+    ]);
+
+    $this->actingAs($otherUser)
+        ->get(route('tips.edit', $tip))
+        ->assertForbidden();
+
+    $this->actingAs($owner)
+        ->get(route('tips.edit', $tip))
+        ->assertOk()
+        ->assertSee('팁 수정')
+        ->assertSee(route('tips.update', $tip), false);
+
+    $this->actingAs($owner)
+        ->put(route('tips.update', $tip), [
+            'title' => '상세에서 수정 완료',
+            'content' => '<p>수정된 본문입니다.</p>',
+            'category_id' => '',
+            'status' => Tip::STATUS_DRAFT,
+            'audience' => Tip::AUDIENCE_PRIVATE,
+        ])
+        ->assertRedirect(route('tips.show', $tip))
+        ->assertSessionHas('status', '팁이 수정되었습니다.');
+
+    expect($tip->refresh()->title)->toBe('상세에서 수정 완료');
+
+    $this->actingAs($otherUser)
+        ->delete(route('tips.destroy', $tip))
+        ->assertForbidden();
+
+    $this->actingAs($owner)
+        ->delete(route('tips.destroy', $tip))
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('status', '팁이 삭제되었습니다.');
+
+    $this->assertSoftDeleted($tip);
 });
 
 test('tip managers can create draft tips without a category', function () {
