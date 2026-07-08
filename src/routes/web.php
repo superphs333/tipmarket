@@ -86,7 +86,9 @@ Route::middleware(['auth', 'verified'])
             ->name('tips.destroy');
     });
 
+// 프론트 Tip 상세 
 Route::get('/tip/{tip}', [TipController::class, 'show'])
+    ->can('view','tip')
     ->name('tips.show');
 
 require __DIR__.'/settings.php';

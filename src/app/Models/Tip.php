@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 
 /**
  * @property int $id
@@ -102,17 +103,43 @@ class Tip extends Model
         ];
     }
 
+    // 전달된 사용자가 이 팁의 작성자인지 확인
+    public function isOwnedBy(User $user) : bool
+    {
+        return $this->user_id === $user->id;
+    }
+
+    /**
+     * 공개 여부 관련
+     */
+    // 발행 상태인지 호가인 
+    public function isPublished(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
+    }
+    // 전체 공개 대상인지 확인
+    public function isPublic() : bool
+    {
+        return $this->audience === self::AUDIENCE_PUBLIC;
+    }
+    // 프리미엄 대상인지 확인
+    public function isPremium() : bool
+    {
+        return $this->audience === self::AUDIENCE_PREMIUM;
+    }
+    // 비공개 대상인지 확인
+    public function isPrivate() : bool
+    {
+        return $this->audience === self::AUDIENCE_PRIVATE;
+    }
+
     // 팁 작성자
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // 공개 팁인지 확인
-    public function isPublished(): bool
-    {
-        return $this->status === self::STATUS_PUBLISHED;
-    }
+
 
     // 팁이 속한 카테고리
     public function category(): BelongsTo
