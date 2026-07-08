@@ -4,6 +4,7 @@ use App\Http\Controllers\Console\DashboardController as ConsoleDashboardControll
 use App\Http\Controllers\Console\TipController as ConsoleTipController;
 use App\Http\Controllers\EditorImageController;
 use App\Http\Controllers\TipController;
+use App\Http\Controllers\TipLikeController;
 use App\Models\Role;
 use App\Models\Tip;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,13 @@ Route::middleware(['auth', 'verified', 'role:'.implode(',', Role::consoleAccessR
         Route::put('/tips/{tip}', [ConsoleTipController::class, 'update'])
             ->can('manageInConsole', Tip::class)
             ->name('tips.update');
+
+        /**
+         * 좋아요 관련
+         */
+        Route::post('/tip/{tip}/like', [TipLikeController::class, 'toggle'])
+            ->can('view', 'tip')
+            ->name('tips.like.toggle');
     });
 
 /**
@@ -84,6 +92,7 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/tip/{tip}', [TipController::class, 'destroy'])
             ->can('delete', 'tip')
             ->name('tips.destroy');
+
     });
 
 // 프론트 Tip 상세
