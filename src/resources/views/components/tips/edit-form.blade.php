@@ -172,8 +172,11 @@
                             name="status"
                             class="tip-edit-control"
                         >
-                            <option value="draft" @selected(old('status', $tip->status) === 'draft')>임시저장</option>
-                            <option value="published" @selected(old('status', $tip->status) === 'published')>발행</option>
+                            @foreach (\App\Models\Tip::statusOptions() as $value => $label)
+                                <option value="{{ $value }}" @selected(old('status', $tip->status) === $value)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -186,9 +189,11 @@
                             name="audience"
                             class="tip-edit-control"
                         >
-                            <option value="public" @selected(old('audience', $tip->audience) === 'public')>전체공개</option>
-                            <option value="premium" @selected(old('audience', $tip->audience) === 'premium')>프리미엄</option>
-                            <option value="private" @selected(old('audience', $tip->audience) === 'private')>비공개</option>
+                            @foreach (\App\Models\Tip::audienceOptions() as $value => $label)
+                                <option value="{{ $value }}" @selected(old('audience', $tip->audience) === $value)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </section>

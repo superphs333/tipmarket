@@ -75,6 +75,33 @@ class Tip extends Model
         self::AUDIENCE_PRIVATE,
     ];
 
+    /**
+     * 화면에서 사용할 팁 상태 option 목록.
+     *
+     * @return array<string, string>
+     */
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_DRAFT => '임시저장',
+            self::STATUS_PUBLISHED => '발행',
+        ];
+    }
+
+    /**
+     * 화면에서 사용할 팁 노출 option 목록.
+     *
+     * @return array<string, string>
+     */
+    public static function audienceOptions(): array
+    {
+        return [
+            self::AUDIENCE_PUBLIC => '전체공개',
+            // self::AUDIENCE_PREMIUM => '프리미엄',
+            self::AUDIENCE_PRIVATE => '비공개',
+        ];
+    }
+
     // 팁 작성자
     public function user(): BelongsTo
     {

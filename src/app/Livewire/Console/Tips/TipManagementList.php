@@ -66,10 +66,7 @@ class TipManagementList extends Component
      */
     private  function statusOptions() : array
     {
-        return[
-            Tip::STATUS_DRAFT => '임시저장',
-            Tip::STATUS_PUBLISHED => '발행'
-        ];
+        return Tip::statusOptions();
     }
 
 
@@ -80,11 +77,7 @@ class TipManagementList extends Component
      */
     private function audienceOptions(): array
     {
-        return [
-            Tip::AUDIENCE_PUBLIC => '전체 공개',
-            Tip::AUDIENCE_PREMIUM => '프리미엄',
-            Tip::AUDIENCE_PRIVATE => '비공개',
-        ];
+        return Tip::audienceOptions();
     }
 
     #[Override]
