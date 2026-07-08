@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Actions\Tips\SaveTip;
 use App\Http\Requests\Tips\SaveTipRequest;
 use App\Models\Tip;
+use App\Services\Tips\TipViewService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Tips\TipViewService;
 use Illuminate\Http\Request;
 
 class TipController extends Controller

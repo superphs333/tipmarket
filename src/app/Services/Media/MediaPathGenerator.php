@@ -21,10 +21,9 @@ class MediaPathGenerator
     /**
      * 업로드 파일의 R2 경로 생성
      *
-     * @param UploadedFile $file 사용자가 업로드한 파일 객체
-     * @param MediaCollection $collection 이미지 사용 용도
-     * @param Model|null $owner 파일이 연결될 도메인 모델 ex) 프로필 이미지: User
-     *
+     * @param  UploadedFile  $file  사용자가 업로드한 파일 객체
+     * @param  MediaCollection  $collection  이미지 사용 용도
+     * @param  Model|null  $owner  파일이 연결될 도메인 모델 ex) 프로필 이미지: User
      * @return string R2 bucket 내부의 상대 경로(path만 반환)
      */
     public function generate(

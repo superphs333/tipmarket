@@ -35,7 +35,6 @@ use Illuminate\Support\Facades\Storage;
  * @property string $visibility 파일 공개 범위. 예: public, private
  * @property array<string, mixed>|null $metadata 추가 메타데이터
  */
-
 #[Fillable([
     'disk',
     'path',
@@ -61,14 +60,16 @@ class Media extends Model
      * 상태
      */
     // 파일이 아직 특정 도메인 모델에 연결되지 않은 상태
-        // - 에디터에서 이미지를 먼저 업로드했지만, 글 저장은 아직 안 된 경우
-        // - 프로필 이미지 업로드 요청 중 DB 연결 전 단계
-    public const STATUS_TEMPORARY  = 'temporary';
+    // - 에디터에서 이미지를 먼저 업로드했지만, 글 저장은 아직 안 된 경우
+    // - 프로필 이미지 업로드 요청 중 DB 연결 전 단계
+    public const STATUS_TEMPORARY = 'temporary';
+
     // 파일에 실제 도메인 모델에 연결된 상태
     public const STATUS_ATTACHED = 'attached';
+
     // 연결 대상이 사라졌거나, 더 이상 사용되지 않는 상태
-        // - 글은 삭제됐지만 파일 삭제 배치가 아직 처리하지 않은 경우
-        // - 프로필 이미지 교체 후 이전 이미지가 정리 대기 중인 경우
+    // - 글은 삭제됐지만 파일 삭제 배치가 아직 처리하지 않은 경우
+    // - 프로필 이미지 교체 후 이전 이미지가 정리 대기 중인 경우
     public const STATUS_ORPHANED = 'orphaned';
 
     /**
@@ -76,6 +77,7 @@ class Media extends Model
      */
     // 공개파일
     public const VISIBILITY_PUBLIC = 'public';
+
     // 비공개 파일
     public const VISIBILITY_PRIVATE = 'private';
 
@@ -95,10 +97,11 @@ class Media extends Model
      * 관계
      */
     // 이 파일에 연결된 도메인 모델
-    public function owner() : MorphTo
+    public function owner(): MorphTo
     {
         return $this->morphTo();
     }
+
     // 이 파일을 업로드한 사용자
     public function uploadedBy(): BelongsTo
     {
@@ -109,38 +112,41 @@ class Media extends Model
      * 접근자
      */
     // 현재 파일의 실제 접근 URL
-    public function publicUrl() : string
+    public function publicUrl(): string
     {
         return Storage::disk($this->disk)->url($this->path);
     }
+
     /**
      * 상태 확인
      */
     // 파일 공개 여부
-    public function isPublic() : bool
+    public function isPublic(): bool
     {
         return $this->visibility === self::VISIBILITY_PUBLIC;
     }
+
     // 파일이 비공개 파일인지 확인
     public function isPrivate(): bool
     {
         return $this->visibility === self::VISIBILITY_PRIVATE;
     }
+
     // 파일이 아직 임시 상태인지 확인
     public function isTemporary(): bool
     {
         return $this->status === self::STATUS_TEMPORARY;
     }
+
     // 파일이 실제 모델에 연결된 상태인지 확인
     public function isAttached(): bool
     {
         return $this->status === self::STATUS_ATTACHED;
     }
+
     // 파일이 정리 대기 상태인지 확인
     public function isOrphaned(): bool
     {
         return $this->status === self::STATUS_ORPHANED;
     }
-
-
 }

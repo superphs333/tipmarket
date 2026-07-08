@@ -17,8 +17,8 @@ use InvalidArgumentException;
 final readonly class TipDraftData
 {
     /**
-     * @param  array<int, int>  $tagIds : 이미 db에 존재하는 태그 id 목록
-     * @param  array<int, string>  $tagNames 
+     * @param  array<int, int>  $tagIds  : 이미 db에 존재하는 태그 id 목록
+     * @param  array<int, string>  $tagNames
      */
     public function __construct(
         public string $title,
@@ -39,7 +39,7 @@ final readonly class TipDraftData
 
     /**
      * 검증된 폼 입력이나 내부 배열을 TipDraftData로 변환한다.
-     * 
+     *
      *
      * @param  array<string, mixed>  $payload
      */
@@ -103,7 +103,7 @@ final readonly class TipDraftData
     }
 
     /**
-     * 선택되지 않은 카테고리는 null로 유지하고, 값이 들어온 경우에만 int로 변환 
+     * 선택되지 않은 카테고리는 null로 유지하고, 값이 들어온 경우에만 int로 변환
      */
     private static function nullableInt(mixed $value): ?int
     {
@@ -116,8 +116,8 @@ final readonly class TipDraftData
 
     /**
      * 기존 태그 id 목록을 저장 로직에서 바로 사용할 수 있게 정리
-     * 
-     * 
+     *
+     *
      * @return array<int, int>
      */
     private static function normalizeTagIds(mixed $tagIds): array
@@ -136,7 +136,7 @@ final readonly class TipDraftData
 
     /**
      * AI/import가 제안한 태그명 목록을 정리
-     * 
+     *
      * @return array<int, string>
      */
     private static function normalizeTagNames(mixed $tagNames): array

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaCollection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,8 +12,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -44,8 +43,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 ])]
 class Tip extends Model
 {
-    use SoftDeletes;
     use HasFactory;
+    use SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
 
@@ -106,7 +105,7 @@ class Tip extends Model
     }
 
     // 전달된 사용자가 이 팁의 작성자인지 확인
-    public function isOwnedBy(User $user) : bool
+    public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;
     }
@@ -114,23 +113,26 @@ class Tip extends Model
     /**
      * 공개 여부 관련
      */
-    // 발행 상태인지 호가인 
+    // 발행 상태인지 호가인
     public function isPublished(): bool
     {
         return $this->status === self::STATUS_PUBLISHED;
     }
+
     // 전체 공개 대상인지 확인
-    public function isPublic() : bool
+    public function isPublic(): bool
     {
         return $this->audience === self::AUDIENCE_PUBLIC;
     }
+
     // 프리미엄 대상인지 확인
-    public function isPremium() : bool
+    public function isPremium(): bool
     {
         return $this->audience === self::AUDIENCE_PREMIUM;
     }
+
     // 비공개 대상인지 확인
-    public function isPrivate() : bool
+    public function isPrivate(): bool
     {
         return $this->audience === self::AUDIENCE_PRIVATE;
     }
@@ -140,8 +142,6 @@ class Tip extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-
 
     // 팁이 속한 카테고리
     public function category(): BelongsTo
@@ -182,11 +182,9 @@ class Tip extends Model
     }
 
     // 팁 본문에 삽입된 이미지 목록
-    public function bodyImages() : MorphMany
+    public function bodyImages(): MorphMany
     {
         return $this->morphMany(Media::class, 'owner')
             ->where('collection', MediaCollection::TipBody->value);
     }
-
-
 }

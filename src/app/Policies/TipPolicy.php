@@ -37,14 +37,17 @@ class TipPolicy
             return Response::allow();
         }
 
-
         if (! $tip->isPublished() || $tip->isPrivate()) {
             return Response::denyAsNotFound();
         }
 
-        if($tip->isPublic()) return Response::allow();
+        if ($tip->isPublic()) {
+            return Response::allow();
+        }
 
-        if($tip->isPremium()) return Response::deny('프리미엄 접근 권한이 필요합니다.');
+        if ($tip->isPremium()) {
+            return Response::deny('프리미엄 접근 권한이 필요합니다.');
+        }
 
         // 정의되지 않은 audience 값은 안전하게 숨김
         return Response::denyAsNotFound();

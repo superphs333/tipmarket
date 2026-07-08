@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Media;
 
 use App\Enums\MediaCollection;
@@ -43,8 +44,7 @@ class MediaStorageService
         User $uploadedBy, // 파일을 업로드한 사용자
         ?Model $owner = null, // 파일이 연결될 모델 (User, Tip..)
         array $metadata = [], // 추가로 저장할 메타데이터
-    ): Media // 생성된 media 모델
-    {
+    ): Media { // 생성된 media 모델
         $disk = $this->disk();
         $visibility = $this->visibility($collection);
         $path = $this->pathGenerator->generate($file, $collection, $owner);
@@ -149,7 +149,7 @@ class MediaStorageService
         );
     }
 
-   /**
+    /**
      * 이미지 파일의 width/height를 가져온다.
      *
      * getimagesize()는 이미지 파일이면 [width, height, ...] 형태의 배열을 반환한다.

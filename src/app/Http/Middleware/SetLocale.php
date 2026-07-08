@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * 저장된 언어를 요청에 적용 
+ * 저장된 언어를 요청에 적용
  */
 class SetLocale
 {

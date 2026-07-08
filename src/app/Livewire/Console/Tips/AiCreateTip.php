@@ -2,16 +2,14 @@
 
 namespace App\Livewire\Console\Tips;
 
-
 use App\Concerns\TaxonomyValidationRules;
+use App\Jobs\GenerateAiTipsJob;
+use App\Models\AiTipGenerationRequest;
 use App\Models\Category;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use App\Jobs\GenerateAiTipsJob;
-use App\Models\AiTipGenerationRequest;
-
 
 /**
  * 콘솔 팁 관리 화면의 AI로 팁 추가 모달 상태와 생성 요청 접수를 조율
@@ -49,11 +47,14 @@ class AiCreateTip extends Component
         ];
     }
 
-    public function generate(): void {
+    public function generate(): void
+    {
         $validated = $this->validate();
         $author = Auth::user();
 
-        if($author === null) abort(403);
+        if ($author === null) {
+            abort(403);
+        }
 
         $requiredTagNames = $this->normalizeTagNames($validated['tagNames'] ?? []);
 

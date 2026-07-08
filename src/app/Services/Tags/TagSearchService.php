@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * 태그 이름으로 활성 태그 검색
- * 
- * @param string $query 사용자가 입력한 검색어
- * @param int $limit 최대 결과 개수, 기본 10개
- * @return Collection<int, Tag> 검색된 Tag 모델 컬렉션 
+ *
+ * @param  string  $query  사용자가 입력한 검색어
+ * @param  int  $limit  최대 결과 개수, 기본 10개
+ * @return Collection<int, Tag> 검색된 Tag 모델 컬렉션
  */
 class TagSearchService
 {

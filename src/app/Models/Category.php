@@ -78,8 +78,9 @@ class Category extends Model
             ->activeOrdered()
             ->select(['id', 'name']);
     }
+
     // 활성 카테고리를 기본 노출 순서대로 정렬
-    public function scopeActiveOrdered(Builder $query) : Builder
+    public function scopeActiveOrdered(Builder $query): Builder
     {
         return $query
             ->active()

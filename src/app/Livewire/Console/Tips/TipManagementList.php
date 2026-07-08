@@ -22,13 +22,12 @@ use Override;
  */
 class TipManagementList extends Component
 {
-    use ManagesTipListFilters;
     use ManagesBulkSelection;
+    use ManagesTipListFilters;
 
-
-    public function render() : View
+    public function render(): View
     {
-        return view('livewire.console.tips.tip-management-list',[
+        return view('livewire.console.tips.tip-management-list', [
             'categories' => $this->categories(),
             'statusOptions' => $this->statusOptions(),
             'audienceOptions' => $this->audienceOptions(),
@@ -37,38 +36,35 @@ class TipManagementList extends Component
     }
 
     /**
-     * 현재 검색 조건이 적용된 팁 목록을 가져옴. 
+     * 현재 검색 조건이 적용된 팁 목록을 가져옴.
      */
-    private function tips() : LengthAwarePaginator
+    private function tips(): LengthAwarePaginator
     {
         return TipListQuery::make()
             ->paginate($this->tipListFilters(), 15);
     }
 
     /**
-     * 카테고리 선택 옵션을 가져옴. 
-     * 
+     * 카테고리 선택 옵션을 가져옴.
+     *
      * @return Collection<int, Category>
      */
-    private function categories() : Collection
+    private function categories(): Collection
     {
         return Category::query()
             ->forSelect()
             ->get();
     }
 
-
-
     /**
      * 관리자 팁관리 화면에서 보여줄 상태 필터 라벨을 반환
-     * 
+     *
      * @return array<string, string>
      */
-    private  function statusOptions() : array
+    private function statusOptions(): array
     {
         return Tip::statusOptions();
     }
-
 
     /**
      * 관리자 팁관리 화면에서 보여줄 노출 필터 라벨을 반환한다.

@@ -156,8 +156,8 @@ final class GenerateTipsFromPrompt
             ->all();
     }
 
-    private function timeoutFor(int $requestedCount) : int
+    private function timeoutFor(int $requestedCount): int
     {
-        return min(max(60,$requestedCount*15),300);
+        return min(max(60, $requestedCount * 15), 300);
     }
 }
