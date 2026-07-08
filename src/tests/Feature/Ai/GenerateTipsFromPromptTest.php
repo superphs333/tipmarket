@@ -1,10 +1,13 @@
 <?php
 
 use App\Livewire\Console\Tips\AiCreateTip;
+use App\Jobs\GenerateAiTipsJob;
+use App\Models\AiTipGenerationRequest;
 use App\Models\Tip;
 use App\Models\User;
 use App\Services\Ai\Tip\GenerateTipsFromPrompt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
 test('generated tip drafts include required tag names even when ai omits them', function () {
@@ -40,7 +43,7 @@ test('generated tip drafts include required tag names even when ai omits them', 
         ->and($drafts[0]->tagNames)->toBe(['청소루틴', '욕실정리', '욕실관리']);
 });
 
-test('ai tip creation shows a ui error when the ai request fails', function () {
+test('ai tip generation job records a failed request when the ai request fails', function () {
     config()->set('services.openai.key', 'test-key');
     config()->set('services.openai.tip_model', 'test-model');
     config()->set('services.openai.tip_timeout', 5);
@@ -50,60 +53,68 @@ test('ai tip creation shows a ui error when the ai request fails', function () {
         'api.openai.test/*' => Http::response(['error' => 'temporary unavailable'], 500),
     ]);
 
-    $this->actingAs(User::factory()->create());
-
-    Livewire::test(AiCreateTip::class)
-        ->set('prompt', '욕실 청소 팁을 작성해줘.')
-        ->call('generate')
-        ->assertHasErrors([
-            'aiGeneration' => 'AI 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.',
-        ])
-        ->assertSee('AI 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
-
-    expect(Tip::query()->count())->toBe(0);
-});
-
-test('ai tip creation closes modal and refreshes the tips page after success', function () {
-    config()->set('services.openai.key', 'test-key');
-    config()->set('services.openai.tip_model', 'test-model');
-    config()->set('services.openai.tip_timeout', 5);
-    config()->set('services.openai.responses_endpoint', 'https://api.openai.test/v1/responses');
-
-    Http::fake([
-        'api.openai.test/*' => Http::response([
-            'output_text' => json_encode([
-                'tips' => [
-                    [
-                        'title' => '싱크대 배수구 냄새 줄이는 방법',
-                        'summary' => '싱크대 배수구 냄새를 줄이는 관리 팁입니다.',
-                        'content' => '<p>뜨거운 물과 베이킹소다로 주기적으로 세척합니다.</p>',
-                        'tags' => ['주방관리'],
-                    ],
-                    [
-                        'title' => '분리수거 전 라벨 제거 팁',
-                        'summary' => '라벨을 쉽게 제거하는 생활 팁입니다.',
-                        'content' => '<p>따뜻한 물에 잠시 불린 뒤 라벨을 떼어냅니다.</p>',
-                        'tags' => ['분리수거'],
-                    ],
-                ],
-            ], JSON_THROW_ON_ERROR),
-        ]),
+    $generationRequest = AiTipGenerationRequest::create([
+        'user_id' => User::factory()->create()->id,
+        'category_id' => null,
+        'status' => 'pending',
+        'prompt' => '욕실 청소 팁을 작성해줘.',
+        'tag_names' => [],
+        'requested_count' => 1,
+        'created_count' => 0,
+        'failed_count' => 0,
     ]);
 
-    $this->actingAs(User::factory()->create());
+    $job = new GenerateAiTipsJob(
+        generationRequestId: $generationRequest->id,
+        requestedCount: $generationRequest->requested_count,
+    );
+
+    try {
+        app()->call([$job, 'handle']);
+    } catch (Throwable $exception) {
+        $job->failed($exception);
+    }
+
+    $generationRequest->refresh();
+
+    expect(Tip::query()->count())->toBe(0);
+    expect($generationRequest->status)->toBe('failed')
+        ->and($generationRequest->failed_count)->toBe(1)
+        ->and($generationRequest->error_message)->toBe('AI 팁 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.')
+        ->and($generationRequest->completed_at)->not()->toBeNull();
+});
+
+test('ai tip creation queues a generation request and closes the modal', function () {
+    Queue::fake();
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
 
     Livewire::test(AiCreateTip::class)
         ->set('count', 2)
         ->call('generate')
         ->assertHasNoErrors()
         ->assertDispatched('toast-show', function (string $event, array $params): bool {
-            return $params['slots']['text'] === '2개가 생성되었습니다.'
+            return $params['slots']['text'] === 'AI 팁 생성을 시작했습니다. 완료되면 이 화면에서 확인할 수 있습니다.'
                 && $params['dataset']['variant'] === 'success';
         })
         ->assertDispatched('modal-close', function (string $event, array $params): bool {
             return $params['name'] === 'ai-tip-create';
-        })
-        ->assertRedirectToRoute('console.tips.index');
+        });
 
-    expect(Tip::query()->count())->toBe(2);
+    $generationRequest = AiTipGenerationRequest::query()->sole();
+
+    expect($generationRequest->user_id)->toBe($user->id)
+        ->and($generationRequest->status)->toBe('pending')
+        ->and($generationRequest->requested_count)->toBe(2)
+        ->and($generationRequest->created_count)->toBe(0)
+        ->and($generationRequest->failed_count)->toBe(0);
+
+    Queue::assertPushed(GenerateAiTipsJob::class, function (GenerateAiTipsJob $job) use ($generationRequest): bool {
+        return $job->generationRequestId === $generationRequest->id
+            && $job->requestedCount === 2;
+    });
+
+    expect(Tip::query()->count())->toBe(0);
 });
