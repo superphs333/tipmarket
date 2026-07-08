@@ -136,4 +136,14 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Tip::class);
     }
+
+    /**
+     * LIKE 관계
+     */
+    // 사용자가 좋아요 한 팁 목록
+    public function likedTips() : BelongsToMany
+    {
+        return $this->belongsToMany(Tip::class, 'tip_likes')
+            ->withTimestamps();
+    }
 }

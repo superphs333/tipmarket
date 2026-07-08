@@ -187,4 +187,14 @@ class Tip extends Model
         return $this->morphMany(Media::class, 'owner')
             ->where('collection', MediaCollection::TipBody->value);
     }
+
+    /**
+     * LIKE 관계
+     */
+    // 이 팁을 좋아요한 사용자 목록
+    public function likedUsers() : BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'tip_likes')
+            ->withTimestamps();
+    }
 }
