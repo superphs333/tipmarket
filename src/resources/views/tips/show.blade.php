@@ -21,6 +21,4 @@
             <x-tips.show.actions :actions="$tipActions" />
         </div>
     </section>
-
-    @vite('resources/js/comments.js')
 </x-layouts.front>

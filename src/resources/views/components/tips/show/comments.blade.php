@@ -13,3 +13,5 @@
         <li class="tip-show__comment-dummy">댓글 목록 영역</li>
     </ul>
 </section>
+
+@vite('resources/js/comments.js')
