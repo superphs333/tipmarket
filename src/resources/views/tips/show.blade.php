@@ -19,7 +19,7 @@
                 <x-tips.show.comments />
             </article>
 
-            <x-tips.show.actions />
+            <x-tips.show.actions :actions="$tipActions" />
         </div>
     </section>
 </x-layouts.front>

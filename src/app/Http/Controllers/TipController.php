@@ -6,6 +6,7 @@ use App\Actions\Tips\SaveTip;
 use App\Http\Requests\Tips\SaveTipRequest;
 use App\Models\Tip;
 use App\Services\Tips\TipViewService;
+use App\View\Actions\TipActionSet;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ class TipController extends Controller
 
         return view('tips.show', [
             'tip' => $tip,
+            'tipActions' => TipActionSet::show($tip),
         ]);
     }
 
