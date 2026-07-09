@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -206,5 +207,22 @@ class Tip extends Model
     {
         return $this->belongsToMany(User::class, 'tip_bookmarks')
             ->withTimestamps();
+    }
+
+    /**
+     * COMMENT 관계
+     */
+    // 이 팁에 달린 전체 댓글 목록
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // 상세 화면에서 우선 조회할 원댓글 목록
+    public function rootComments(): HasMany
+    {
+        return $this->hasMany(Comment::class)
+            ->whereNull('parent_id')
+            ->orderBy('created_at');
     }
 }

@@ -156,4 +156,13 @@ class User extends Authenticatable implements PasskeyUser
         return $this->belongsToMany(Tip::class, 'tip_bookmarks')
             ->withTimestamps();
     }
+
+    /**
+     * COMMENT 관계
+     */
+    // 사용자가 작성한 댓글 목록
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
