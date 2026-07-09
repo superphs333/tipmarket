@@ -53,9 +53,15 @@ class TipController extends Controller
             'tags',
         ]);
 
+        $user = $request->user();
+
         return view('tips.show', [
             'tip' => $tip,
-            'tipActions' => TipActionSet::show($tip),
+            'tipActions' => TipActionSet::show(
+                tip: $tip,
+                bookmarkedByViewer: $user !== null && $tip->bookmarkedUsers()->whereKey($user->id)->exists(),
+                likedByViewer: $user !== null && $tip->likedUsers()->whereKey($user->id)->exists(),
+            ),
         ]);
     }
 

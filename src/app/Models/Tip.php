@@ -192,9 +192,19 @@ class Tip extends Model
      * LIKE 관계
      */
     // 이 팁을 좋아요한 사용자 목록
-    public function likedUsers() : BelongsToMany
+    public function likedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'tip_likes')
+            ->withTimestamps();
+    }
+
+    /**
+     * BOOKMARK 관계
+     */
+    // 이 팁을 북마크한 사용자 목록
+    public function bookmarkedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'tip_bookmarks')
             ->withTimestamps();
     }
 }

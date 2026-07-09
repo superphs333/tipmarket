@@ -6,29 +6,29 @@ use App\Models\Tip;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class ToggleTipLike
+class ToggleTipBookmark
 {
     /**
-     * 좋아요 상태 토글
+     * 북마크 상태 토글
      *
-     * @return bool true => 좋아요, false => 좋아요 취소 상태
+     * @return bool true => 북마크, false => 북마크 취소 상태
      */
     public function __invoke(Tip $tip, User $user): bool
     {
         return DB::transaction(function () use ($tip, $user): bool {
-            $changes = $tip->likedUsers()->toggle($user->id);
+            $changes = $tip->bookmarkedUsers()->toggle($user->id);
 
             if ($changes['attached'] !== []) {
-                $tip->increment('like_count');
+                $tip->increment('bookmark_count');
 
                 return true;
             }
 
-            // 좋아요 취소시 0아래로 내려가는 것 방어
+            // 북마크 취소시 0아래로 내려가는 것 방어
             Tip::query()
                 ->whereKey($tip->id)
-                ->where('like_count', '>', 0)
-                ->decrement('like_count');
+                ->where('bookmark_count', '>', 0)
+                ->decrement('bookmark_count');
 
             return false;
         });
