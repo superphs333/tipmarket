@@ -2,7 +2,6 @@
     $tocItems = [
         ['href' => '#tip-content', 'label' => '본문'],
         ['href' => '#tip-tags', 'label' => '태그'],
-        ['href' => '#tip-reactions', 'label' => '반응'],
         ['href' => '#tip-comments', 'label' => '댓글'],
     ];
 @endphp

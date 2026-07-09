@@ -420,60 +420,10 @@ select:focus[data-flux-control] {
         font-size: 14px;
     }
 
-    .tip-show__reactions {
-        margin-top: 8px;
-        padding-top: 28px;
-        border-top: 1px solid var(--color-zinc-200);
-    }
-
-    .tip-show__reaction-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
-    .tip-show__reaction-panel {
-        display: grid;
-        gap: 14px;
-        min-width: 0;
-        border: 1px solid var(--color-zinc-200);
-        border-radius: 8px;
-        background: #ffffff;
-        padding: 20px;
-    }
-
-    .tip-show__reaction-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        color: var(--color-zinc-900);
-        font-size: 15px;
-    }
-
-    .tip-show__reaction-count {
-        border: 0;
-        background: transparent;
-        color: var(--color-zinc-900);
-        font-size: 16px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .tip-show__reaction-users {
-        min-height: 28px;
-        color: var(--color-zinc-400);
-        font-size: 14px;
-    }
-
     .tip-show__comments {
         margin-top: 38px;
         padding-top: 28px;
         border-top: 1px solid var(--color-zinc-200);
-    }
-
-    .tip-show__reaction-modal[hidden] {
-        display: none;
     }
 
     .tip-show__comment-form {
@@ -716,10 +666,6 @@ select:focus[data-flux-control] {
 
         .tip-show__title {
             font-size: 24px;
-        }
-
-        .tip-show__reaction-grid {
-            grid-template-columns: 1fr;
         }
 
         .actions-item__label {
