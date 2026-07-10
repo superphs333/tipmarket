@@ -29,6 +29,52 @@ test('guest cannot create a comment', function () {
     expect($tip->fresh()->comment_count)->toBe(0);
 });
 
+test('guest cannot delete a comment', function () {
+    $author = User::factory()->create();
+    $tip = Tip::factory()->create(['comment_count' => 1]);
+    $comment = Comment::factory()->for($tip)->for($author)->create();
+
+    $this->deleteJson(route('comments.destroy', $comment))
+        ->assertUnauthorized();
+
+    expect($comment->fresh()->status)->toBe(Comment::STATUS_ACTIVE)
+        ->and($tip->fresh()->comment_count)->toBe(1);
+});
+
+test('comment author can delete an active comment and recount active comments', function () {
+    $author = User::factory()->create();
+    $tip = Tip::factory()->create(['comment_count' => 99]);
+    $comment = Comment::factory()->for($tip)->for($author)->create();
+
+    Comment::factory()->for($tip)->create();
+    Comment::factory()->for($tip)->create([
+        'status' => Comment::STATUS_HIDDEN,
+    ]);
+
+    $this
+        ->actingAs($author)
+        ->deleteJson(route('comments.destroy', $comment))
+        ->assertNoContent();
+
+    expect($comment->fresh()->status)->toBe(Comment::STATUS_DELETED)
+        ->and($tip->fresh()->comment_count)->toBe(1);
+});
+
+test('user cannot delete another users comment', function () {
+    $author = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $tip = Tip::factory()->create(['comment_count' => 1]);
+    $comment = Comment::factory()->for($tip)->for($author)->create();
+
+    $this
+        ->actingAs($otherUser)
+        ->deleteJson(route('comments.destroy', $comment))
+        ->assertForbidden();
+
+    expect($comment->fresh()->status)->toBe(Comment::STATUS_ACTIVE)
+        ->and($tip->fresh()->comment_count)->toBe(1);
+});
+
 test('logged in user can create a root comment on own tip', function () {
     $author = User::factory()->unverified()->create();
     $tip = Tip::factory()->for($author)->create();

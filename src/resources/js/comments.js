@@ -56,6 +56,9 @@ const initializeTipComments = (section) => {
     // 댓글 등록 요청의 중복 실행을 방지한다.
     let isSubmitting = false;
 
+    // 같은 댓글에 삭제 요청이 중복 전송되지 않도록 처리 중인 ID를 보관한다.
+    const deletingCommentIds = new Set();
+
     /**
      * 댓글 목록 조회 실패 화면을 출력한다.
      *
@@ -269,7 +272,57 @@ const initializeTipComments = (section) => {
         if (retryButton) {
             // URL을 생략하면 기본 indexUrl로 첫 페이지를 재조회한다.
             loadComments();
+
+            return;
         }
+
+        const deleteButton = event.target.closest('[data-comment-delete]');
+
+        if (!deleteButton) {
+            return;
+        }
+
+        const commentItem = deleteButton.closest('[data-comment-id]');
+        const commentId = commentItem?.dataset.commentId;
+        const deleteUrl = deleteButton.dataset.commentDeleteUrl;
+
+        if (
+            !commentId
+            || !deleteUrl
+            || deletingCommentIds.has(commentId)
+            || !window.confirm('댓글을 삭제하시겠습니까?')
+        ) {
+            return;
+        }
+
+        deletingCommentIds.add(commentId);
+        deleteButton.disabled = true;
+
+        fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute('content') ?? '',
+            },
+            credentials: 'same-origin',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`댓글 삭제 실패: ${response.status}`);
+                }
+
+                return loadComments(indexUrl);
+            })
+            .catch(() => {
+                window.alert('댓글을 삭제하지 못했습니다. 잠시 후 다시 시도해주세요.');
+                deleteButton.disabled = false;
+            })
+            .finally(() => {
+                deletingCommentIds.delete(commentId);
+            });
     });
 
     /**

@@ -55,7 +55,12 @@
                                         <span>수정</span>
                                     </button>
 
-                                    <button type="button" class="tip-show__comment-action tip-show__comment-action--danger">
+                                    <button
+                                        type="button"
+                                        class="tip-show__comment-action tip-show__comment-action--danger"
+                                        data-comment-delete
+                                        data-comment-delete-url="{{ route('comments.destroy', $comment) }}"
+                                    >
                                         <svg aria-hidden="true" viewBox="0 0 24 24">
                                             <path d="M8 8v10m4-10v10m4-10v10M5 5h14M9 5V3h6v2m2 0-1 16H8L7 5" />
                                         </svg>

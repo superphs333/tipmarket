@@ -112,6 +112,10 @@ Route::post('/tip/{tip}/comments', [TipCommentController::class, 'store'])
     ->can('view', 'tip')
     ->name('tips.comments.store');
 
+Route::delete('/comments/{comment}', [TipCommentController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('comments.destroy');
+
 // 프론트 Tip 상세
 Route::get('/tip/{tip}', [TipController::class, 'show'])
     ->can('view', 'tip')
