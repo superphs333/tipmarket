@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Comments\CreateTipComment;
-use App\Http\Requests\Comments\StoreTipCommentRequest;
+use App\Http\Requests\Comments\SaveTipCommentRequest;
 use App\Models\Comment;
 use App\Models\Tip;
 use App\Models\User;
@@ -29,7 +29,7 @@ final class TipCommentController extends Controller
 
     // 로그인 사용자의 원댓글 등록
     public function store(
-        StoreTipCommentRequest $request,
+        SaveTipCommentRequest $request,
         Tip $tip,
         CreateTipComment $createTipComment,
     ): JsonResponse {

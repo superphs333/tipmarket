@@ -5,11 +5,11 @@ namespace App\Http\Requests\Comments;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * 팁 원댓글 등록 요청을 검증하고 본문을 저장 가능한 형태로 정규화
+ * 댓글 등록 및 수정 요청을 검증하고 본문을 저장 가능한 형태로 정규화
  */
-class StoreTipCommentRequest extends FormRequest
+class SaveTipCommentRequest extends FormRequest
 {
-    // 로그인한 사용자만 댓글 등록 요청 처리 가능
+    // 로그인한 사용자만 댓글 저장 요청 처리 가능
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -39,7 +39,7 @@ class StoreTipCommentRequest extends FormRequest
         ];
     }
 
-    // 댓글 등록 검증 실패 시 사용자에게 보여줄 메시지 반환
+    // 댓글 저장 검증 실패 시 사용자에게 보여줄 메시지 반환
     public function messages(): array
     {
         return [
