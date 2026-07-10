@@ -22,16 +22,48 @@
                     </p>
                 @else
                     <header class="tip-show__comment-header">
-                        <strong class="tip-show__comment-author">
-                            {{ $comment->user->name }}
-                        </strong>
+                        <div class="tip-show__comment-meta">
+                            <strong class="tip-show__comment-author">
+                                {{ $comment->user->name }}
+                            </strong>
 
-                        <time
-                            class="tip-show__comment-created-at"
-                            datetime="{{ $comment->created_at?->toIso8601String() }}"
-                        >
-                            {{ $comment->created_at?->diffForHumans() }}
-                        </time>
+                            <time
+                                class="tip-show__comment-created-at"
+                                datetime="{{ $comment->created_at?->toIso8601String() }}"
+                            >
+                                {{ $comment->created_at?->diffForHumans() }}
+                            </time>
+                        </div>
+
+                        {{-- 댓글 액션은 로그인 사용자에게만 노출하며 실제 동작은 추후 연결한다. --}}
+                        @auth
+                            <div class="tip-show__comment-actions" aria-label="댓글 관리">
+                                <button type="button" class="tip-show__comment-action">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                                        <path d="M8 10h8M8 14h5" />
+                                        <path d="M5 5.5h14v12H9l-4 3v-15Z" />
+                                    </svg>
+                                    <span>댓글</span>
+                                </button>
+
+                                {{-- 수정과 삭제는 댓글 작성자에게만 노출한다. --}}
+                                @if (auth()->id() === $comment->user_id)
+                                    <button type="button" class="tip-show__comment-action">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                                            <path d="m14.5 6.5 3 3M6 18l1-4 9-9 3 3-9 9-4 1Z" />
+                                        </svg>
+                                        <span>수정</span>
+                                    </button>
+
+                                    <button type="button" class="tip-show__comment-action tip-show__comment-action--danger">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                                            <path d="M8 8v10m4-10v10m4-10v10M5 5h14M9 5V3h6v2m2 0-1 16H8L7 5" />
+                                        </svg>
+                                        <span>삭제</span>
+                                    </button>
+                                @endif
+                            </div>
+                        @endauth
                     </header>
 
                     {{-- Blade 이스케이프 출력으로 댓글 안의 HTML을 실행하지 않는다. --}}
