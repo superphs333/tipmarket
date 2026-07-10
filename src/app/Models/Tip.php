@@ -218,11 +218,14 @@ class Tip extends Model
         return $this->hasMany(Comment::class);
     }
 
-    // 상세 화면에서 우선 조회할 원댓글 목록
+    /**
+     * 상세 화면에서 조회할 원댓글 관계.
+     *
+     * @return HasMany<Comment, $this>
+     */
     public function rootComments(): HasMany
     {
         return $this->hasMany(Comment::class)
-            ->whereNull('parent_id')
-            ->orderBy('created_at');
+            ->whereNull('parent_id');
     }
 }

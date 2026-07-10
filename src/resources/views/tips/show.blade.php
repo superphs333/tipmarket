@@ -15,7 +15,7 @@
                 <x-tips.show.thumbnail :tip="$tip" />
                 <x-tips.show.content :tip="$tip" />
                 <x-tips.show.tags :tags="$tip->tags" />
-                <x-tips.show.comments />
+                <x-tips.show.comments :tip="$tip" />
             </article>
 
             <x-tips.show.actions :actions="$tipActions" />

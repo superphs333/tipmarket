@@ -254,19 +254,19 @@ test('tip owners can see edit and delete actions on the tip detail page', functi
     $this->get(route('tips.show', $tip))
         ->assertOk()
         ->assertDontSee(route('tips.edit', $tip), false)
-        ->assertDontSee(route('tips.destroy', $tip), false);
+        ->assertDontSee('aria-label="팁 관리"', false);
 
     $this->actingAs($otherUser)
         ->get(route('tips.show', $tip))
         ->assertOk()
         ->assertDontSee(route('tips.edit', $tip), false)
-        ->assertDontSee(route('tips.destroy', $tip), false);
+        ->assertDontSee('aria-label="팁 관리"', false);
 
     $this->actingAs($owner)
         ->get(route('tips.show', $tip))
         ->assertOk()
         ->assertSee(route('tips.edit', $tip), false)
-        ->assertSee(route('tips.destroy', $tip), false)
+        ->assertSee('aria-label="팁 관리"', false)
         ->assertSee('팁 삭제');
 });
 

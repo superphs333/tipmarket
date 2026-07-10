@@ -10,6 +10,7 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/comments.css',
                 'resources/js/app.js',
                 'resources/js/comments.js',
                 'resources/js/passkeys.js',

@@ -4,6 +4,7 @@ use App\Http\Controllers\Console\DashboardController as ConsoleDashboardControll
 use App\Http\Controllers\Console\TipController as ConsoleTipController;
 use App\Http\Controllers\EditorImageController;
 use App\Http\Controllers\TipBookmarkController;
+use App\Http\Controllers\TipCommentController;
 use App\Http\Controllers\TipController;
 use App\Http\Controllers\TipLikeController;
 use App\Models\Role;
@@ -95,6 +96,21 @@ Route::middleware(['auth', 'verified'])
             ->can('view', 'tip')
             ->name('tips.bookmark.toggle');
     });
+
+/**
+ * 팁 댓글
+ *
+ * 목록은 비회원도 조회할 수 있다.
+ * 등록은 로그인 사용자만 가능하며 이메일 인증은 요구하지 않는다.
+ */
+Route::get('/tip/{tip}/comments', [TipCommentController::class, 'index'])
+    ->can('view', 'tip')
+    ->name('tips.comments.index');
+
+Route::post('/tip/{tip}/comments', [TipCommentController::class, 'store'])
+    ->middleware('auth')
+    ->can('view', 'tip')
+    ->name('tips.comments.store');
 
 // 프론트 Tip 상세
 Route::get('/tip/{tip}', [TipController::class, 'show'])
