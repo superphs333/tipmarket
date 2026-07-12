@@ -226,6 +226,94 @@
     overflow-wrap: anywhere;
 }
 
+/* 댓글 본문 자리에 표시되는 인라인 수정 영역 */
+.tip-show__comment-editor {
+    display: grid;
+    gap: 10px;
+}
+
+/* 기존 댓글 입력 영역과 시각적 흐름을 맞춘 수정 입력창 */
+.tip-show__comment-edit-input {
+    min-height: 104px;
+    max-height: 280px;
+    width: 100%;
+    resize: vertical;
+    overflow-y: auto;
+    border: 1px solid var(--color-zinc-300);
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 12px 14px;
+    color: var(--color-zinc-900);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.7;
+    outline: none;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.tip-show__comment-edit-input:focus {
+    border-color: var(--color-zinc-500);
+    box-shadow: 0 0 0 3px rgb(24 24 27 / 0.08);
+}
+
+/* 편집 중 선택 가능한 취소와 저장 동작을 오른쪽에 배치 */
+.tip-show__comment-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.tip-show__comment-edit-cancel,
+.tip-show__comment-edit-save {
+    min-height: 36px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 0 14px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        opacity 150ms ease;
+}
+
+.tip-show__comment-edit-cancel {
+    border-color: var(--color-zinc-300);
+    background: #ffffff;
+    color: var(--color-zinc-700);
+}
+
+.tip-show__comment-edit-cancel:hover {
+    background: var(--color-zinc-100);
+    color: var(--color-zinc-900);
+}
+
+.tip-show__comment-edit-save {
+    background: var(--color-zinc-900);
+    color: #ffffff;
+}
+
+.tip-show__comment-edit-save:hover {
+    background: var(--color-zinc-700);
+}
+
+.tip-show__comment-edit-cancel:focus-visible,
+.tip-show__comment-edit-save:focus-visible {
+    outline: 2px solid var(--color-zinc-400);
+    outline-offset: 2px;
+}
+
+.tip-show__comment-edit-cancel:disabled,
+.tip-show__comment-edit-save:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .tip-show__comment-status {
     margin: 0;
     color: var(--color-zinc-500);

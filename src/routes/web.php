@@ -116,6 +116,10 @@ Route::delete('/comments/{comment}', [TipCommentController::class, 'destroy'])
     ->middleware('auth')
     ->name('comments.destroy');
 
+Route::patch('/comments/{comment}', [TipCommentController::class, 'update'])
+    ->middleware('auth')
+    ->name('comments.update');
+
 // 프론트 Tip 상세
 Route::get('/tip/{tip}', [TipController::class, 'show'])
     ->can('view', 'tip')

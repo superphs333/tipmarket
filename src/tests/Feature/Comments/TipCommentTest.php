@@ -41,6 +41,19 @@ test('guest cannot delete a comment', function () {
         ->and($tip->fresh()->comment_count)->toBe(1);
 });
 
+test('guest cannot update a comment', function () {
+    $author = User::factory()->create();
+    $comment = Comment::factory()->for($author)->create([
+        'body' => '기존 댓글',
+    ]);
+
+    $this->patchJson(route('comments.update', $comment), [
+        'body' => '비회원 수정 시도',
+    ])->assertUnauthorized();
+
+    expect($comment->fresh()->body)->toBe('기존 댓글');
+});
+
 test('comment author can delete an active comment and recount active comments', function () {
     $author = User::factory()->create();
     $tip = Tip::factory()->create(['comment_count' => 99]);
@@ -74,6 +87,87 @@ test('user cannot delete another users comment', function () {
     expect($comment->fresh()->status)->toBe(Comment::STATUS_ACTIVE)
         ->and($tip->fresh()->comment_count)->toBe(1);
 });
+
+test('comment author can update an active comment without changing comment count', function () {
+    $author = User::factory()->create();
+    $tip = Tip::factory()->create(['comment_count' => 1]);
+    $comment = Comment::factory()->for($tip)->for($author)->create([
+        'body' => '수정 전 댓글',
+    ]);
+
+    $this
+        ->actingAs($author)
+        ->patchJson(route('comments.update', $comment), [
+            'body' => '  수정된 댓글  ',
+        ])
+        ->assertOk()
+        ->assertJson([
+            'comment_id' => $comment->id,
+            'body' => '수정된 댓글',
+        ]);
+
+    expect($comment->fresh()->body)->toBe('수정된 댓글')
+        ->and($tip->fresh()->comment_count)->toBe(1);
+});
+
+test('user cannot update another users comment', function () {
+    $author = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $comment = Comment::factory()->for($author)->create([
+        'body' => '원래 댓글',
+    ]);
+
+    $this
+        ->actingAs($otherUser)
+        ->patchJson(route('comments.update', $comment), [
+            'body' => '권한 없는 수정',
+        ])
+        ->assertForbidden();
+
+    expect($comment->fresh()->body)->toBe('원래 댓글');
+});
+
+test('deleted and hidden comments cannot be updated', function (string $status) {
+    $author = User::factory()->create();
+    $comment = Comment::factory()->for($author)->create([
+        'body' => '비활성 댓글',
+        'status' => $status,
+    ]);
+
+    $this
+        ->actingAs($author)
+        ->patchJson(route('comments.update', $comment), [
+            'body' => '수정 시도',
+        ])
+        ->assertConflict();
+
+    expect($comment->fresh()->body)->toBe('비활성 댓글');
+})->with([
+    'deleted' => Comment::STATUS_DELETED,
+    'hidden' => Comment::STATUS_HIDDEN,
+]);
+
+test('comment update validation rejects invalid body', function (mixed $body) {
+    $author = User::factory()->create();
+    $comment = Comment::factory()->for($author)->create([
+        'body' => '기존 댓글',
+    ]);
+
+    $this
+        ->actingAs($author)
+        ->patchJson(route('comments.update', $comment), [
+            'body' => $body,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('body');
+
+    expect($comment->fresh()->body)->toBe('기존 댓글');
+})->with([
+    'empty string' => [''],
+    'whitespace only' => ['   '],
+    'more than 1000 characters' => [str_repeat('가', 1001)],
+    'non string body' => [['댓글']],
+]);
 
 test('logged in user can create a root comment on own tip', function () {
     $author = User::factory()->unverified()->create();

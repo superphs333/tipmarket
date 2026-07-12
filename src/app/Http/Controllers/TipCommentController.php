@@ -96,4 +96,30 @@ final class TipCommentController extends Controller
 
         return response()->noContent();
     }
+
+    // 작성자가 자신의 활성 댓글 본문 수정
+    public function update(
+        SaveTipCommentRequest $request,
+        Comment $comment,
+    ): JsonResponse {
+        abort_unless(
+            $request->user()?->id === $comment->user_id,
+            403,
+        );
+        abort_unless(
+            $comment->isActive(),
+            409,
+        );
+
+        $validated = $request->validated();
+
+        $comment->update([
+            'body' => $validated['body'],
+        ]);
+
+        return response()->json([
+            'comment_id' => $comment->id,
+            'body' => $comment->body,
+        ]);
+    }
 }
