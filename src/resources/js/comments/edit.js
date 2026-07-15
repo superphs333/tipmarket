@@ -7,6 +7,43 @@ import { getCsrfToken } from './http.js';
  * @return {void}
  */
 export const initializeCommentEditing = ({ section }) => {
+    const editTemplate = section.querySelector(
+        '[data-comment-edit-template]',
+    );
+
+    /**
+     * 버튼이나 댓글 요소를 기준으로 편집에 공통으로 필요한 DOM을 조회한다.
+     *
+     * @param {Element} source : 댓글 내부에 있는 기준 DOM 요소 (editButton, saveButton, commentItem,..)
+     * @return {{
+     *     commentItem: Element|null,
+     *     bodyElement: Element|null,
+     *     bodyTextElement: Element|null,
+     *     actionsElement: Element|null
+     * }}
+     */
+    const getCommentElements = (source) => {
+        const commentItem = source.matches('[data-comment-id]')
+            ? source
+            : source.closest('[data-comment-id]');
+
+        return {
+            commentItem,
+            // 현재 댓글의 전체 본문 영역
+            bodyElement: commentItem?.querySelector(
+                '[data-comment-body]',
+            ) ?? null,
+            // 전체 본문 안에서 실제 수정 대상 텍스트
+            bodyTextElement: commentItem?.querySelector(
+                '[data-comment-body-text]',
+            ) ?? null,
+            // 현재 댓글의 답글|수정|삭제 버튼 영역
+            actionsElement: commentItem?.querySelector(
+                '[data-comment-actions]',
+            ) ?? null,
+        };
+    };
+
     /**
      * 댓글 수정 화면을 닫고 원래 댓글 화면으로 복구
      *
@@ -14,22 +51,13 @@ export const initializeCommentEditing = ({ section }) => {
      * @return {void}
      */
     const closeCommentEditor = (commentItem) => {
-        // 현재 댓글 안에서 JavaScript가 생성한 편집 영역을 탐색
+        const { bodyElement, actionsElement } = getCommentElements(commentItem);
+
         const editorElement = commentItem.querySelector(
             '[data-comment-editor]',
         );
 
-        // 현재 댓글의 기존 본문 요소를 탐색
-        const bodyElement = commentItem.querySelector(
-            '[data-comment-body]',
-        );
-
-        // 현재 댓글의 댓글·수정·삭제 버튼 영역을 탐색
-        const actionsElement = commentItem.querySelector(
-            '[data-comment-actions]',
-        );
-
-        // 생성했던 수정 입력창과 취소·저장 버튼 전체를 제거
+        // 템플릿에서 복제했던 수정 입력창과 버튼 전체를 제거
         editorElement?.remove();
 
         // 기존 댓글 본문을 다시 화면에 표시
@@ -41,7 +69,6 @@ export const initializeCommentEditing = ({ section }) => {
         if (actionsElement) {
             actionsElement.hidden = false;
         }
-
     };
 
     /**
@@ -50,45 +77,28 @@ export const initializeCommentEditing = ({ section }) => {
      * @param {string} updateUrl 댓글 수정 URL
      * @param {string} body 기존 댓글 본문
      * @return {{
-     *     editorElement: HTMLDivElement,
+     *     editorElement: HTMLElement,
      *     editInput: HTMLTextAreaElement
      * }} 생성된 댓글 편집 요소
      */
     const createCommentEditor = (updateUrl, body) => {
-        // 수정 입력창과 버튼을 감쌀 편집 영역을 생성
-        const editorElement = document.createElement('div');
-        editorElement.className = 'tip-show__comment-editor';
-        editorElement.dataset.commentEditor = '';
+        if (!(editTemplate instanceof HTMLTemplateElement)) {
+            throw new Error('댓글 수정 템플릿을 찾을 수 없습니다.');
+        }
+
+        /*
+         * 고정 UI는 Blade 템플릿에서 복제하고, 댓글마다 달라지는
+         * 수정 URL과 기존 본문만 JavaScript에서 안전하게 반영한다.
+         */
+        const editorElement = editTemplate.content
+            .firstElementChild
+            ?.cloneNode(true);
+
+        if (!(editorElement instanceof HTMLElement)) {
+            throw new Error('댓글 수정 영역을 생성하지 못했습니다.');
+        }
+
         editorElement.dataset.commentUpdateUrl = updateUrl;
-
-        // 사용자 본문은 넣지 않고 고정된 편집 UI만 생성
-        editorElement.innerHTML = `
-            <textarea
-                class="tip-show__comment-edit-input"
-                data-comment-edit-input
-                maxlength="1000"
-                rows="4"
-                aria-label="댓글 내용 수정"
-            ></textarea>
-
-            <div class="tip-show__comment-edit-actions">
-                <button
-                    type="button"
-                    class="tip-show__comment-edit-cancel"
-                    data-comment-edit-cancel
-                >
-                    취소
-                </button>
-
-                <button
-                    type="button"
-                    class="tip-show__comment-edit-save"
-                    data-comment-edit-save
-                >
-                    저장
-                </button>
-            </div>
-        `;
 
         // 생성한 편집 영역 안에서 실제 입력창을 탐색
         const editInput = editorElement.querySelector(
@@ -96,10 +106,10 @@ export const initializeCommentEditing = ({ section }) => {
         );
 
         if (!(editInput instanceof HTMLTextAreaElement)) {
-            throw new Error('댓글 수정 입력창 생성 실패');
+            throw new Error('댓글 수정 입력창을 생성하지 못했습니다.');
         }
 
-        // HTML 실행 방지를 위해 textContent로 읽은 기존 본문 입력
+        // value로 기존 본문을 넣어 댓글 내용이 HTML로 해석되지 않게 한다.
         editInput.value = body;
 
         return {
@@ -115,27 +125,20 @@ export const initializeCommentEditing = ({ section }) => {
      * @return {void}
      */
     const openCommentEditor = (editButton) => {
-        // 수정 버튼에서 가장 가까운 댓글 <li data-comment-id>를 탐색
-        const commentItem = editButton.closest(
-            '[data-comment-id]',
-        );
+        const {
+            commentItem,
+            bodyElement,
+            bodyTextElement,
+            actionsElement,
+        } = getCommentElements(editButton);
         const updateUrl = editButton.dataset.commentUpdateUrl;
-
-        // 현재 댓글 안에서 기존 본문 요소를 탐색
-        const bodyElement = commentItem?.querySelector(
-            '[data-comment-body]',
-        );
-
-        // 현재 댓글 안에서 댓글·수정·삭제 버튼 영역을 탐색
-        const actionsElement = commentItem?.querySelector(
-            '[data-comment-actions]',
-        );
 
         // 편집에 필요한 값이 없으면 중단
         if (
             !commentItem
             || !updateUrl
             || !bodyElement
+            || !bodyTextElement
         ) {
             return;
         }
@@ -150,7 +153,7 @@ export const initializeCommentEditing = ({ section }) => {
         // 기존 본문과 수정 URL을 이용한 편집 UI 생성
         const { editorElement, editInput } = createCommentEditor(
             updateUrl,
-            bodyElement.textContent ?? '',
+            bodyTextElement.textContent ?? '',
         );
 
         // 기존 본문 바로 다음 위치에 편집 영역을 추가
@@ -178,10 +181,12 @@ export const initializeCommentEditing = ({ section }) => {
      * @return {Promise<void>}
      */
     const saveCommentEdit = async (saveButton) => {
-        // 저장 버튼이 속한 댓글과 편집 영역을 탐색
-        const commentItem = saveButton.closest('[data-comment-id]');
+        const {
+            commentItem,
+            bodyElement,
+            bodyTextElement,
+        } = getCommentElements(saveButton);
         const editorElement = saveButton.closest('[data-comment-editor]');
-        const bodyElement = commentItem?.querySelector('[data-comment-body]');
         const editInput = editorElement?.querySelector(
             '[data-comment-edit-input]',
         );
@@ -192,6 +197,7 @@ export const initializeCommentEditing = ({ section }) => {
             !commentItem
             || !editorElement
             || !bodyElement
+            || !bodyTextElement
             || !updateUrl
             || !(editInput instanceof HTMLTextAreaElement)
         ) {
@@ -239,7 +245,7 @@ export const initializeCommentEditing = ({ section }) => {
             }
 
             // 수정된 본문을 textContent로 반영해 HTML 실행을 방지
-            bodyElement.textContent = typeof payload.body === 'string'
+            bodyTextElement.textContent = typeof payload.body === 'string'
                 ? payload.body
                 : body;
 

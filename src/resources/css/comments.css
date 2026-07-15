@@ -207,6 +207,12 @@
     color: var(--color-zinc-800);
 }
 
+/* 현재 답글 입력 대상임을 버튼에서도 확인할 수 있게 한다. */
+.tip-show__comment-action--active {
+    background: var(--color-zinc-100);
+    color: var(--color-zinc-900);
+}
+
 .tip-show__comment-action:focus-visible {
     outline: 2px solid var(--color-zinc-400);
     outline-offset: 1px;
@@ -222,8 +228,192 @@
     color: var(--color-zinc-800);
     font-size: 14px;
     line-height: 1.7;
-    white-space: pre-wrap;
     overflow-wrap: anywhere;
+}
+
+/* Blade 마크업의 들여쓰기가 아닌 사용자가 입력한 본문의 줄바꿈만 보존한다. */
+.tip-show__comment-body-text {
+    white-space: pre-wrap;
+}
+
+/* 대댓글은 원댓글 아래에서 한 단계만 들여쓴다. */
+.tip-show__reply-list {
+    display: grid;
+    margin: 8px 0 0 28px;
+    padding: 0 0 0 16px;
+    border-left: 2px solid var(--color-zinc-200);
+    list-style: none;
+}
+
+.tip-show__reply-item {
+    display: grid;
+    gap: 6px;
+    padding: 12px 2px;
+    border-top: 1px solid var(--color-zinc-100);
+}
+
+.tip-show__reply-item:first-child {
+    border-top: 0;
+}
+
+/* 대댓글에 다시 답글을 작성한 경우 실제 답글 대상을 강조한다. */
+.tip-show__reply-mention {
+    margin-right: 4px;
+    color: var(--color-zinc-600);
+    font-weight: 800;
+}
+
+/* 폼이 열리지 않은 원댓글에는 불필요한 높이나 간격을 만들지 않는다. */
+.tip-show__reply-form-region:empty {
+    display: none;
+}
+
+/* 선택한 원댓글 묶음 아래에 표시되는 공용 대댓글 입력 폼 */
+.tip-show__reply-form {
+    display: grid;
+    gap: 10px;
+    margin: 10px 0 2px 28px;
+    border: 1px solid var(--color-zinc-200);
+    border-radius: 10px;
+    background: var(--color-zinc-50);
+    padding: 14px;
+}
+
+.tip-show__reply-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tip-show__reply-form-header strong {
+    color: var(--color-zinc-700);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.tip-show__reply-form-close {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-zinc-500);
+    font: inherit;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.tip-show__reply-form-close:hover {
+    background: var(--color-zinc-200);
+    color: var(--color-zinc-900);
+}
+
+.tip-show__reply-input {
+    min-height: 96px;
+    max-height: 240px;
+    width: 100%;
+    resize: vertical;
+    overflow-y: auto;
+    border: 1px solid var(--color-zinc-300);
+    border-radius: 9px;
+    background: #ffffff;
+    padding: 12px 14px;
+    color: var(--color-zinc-900);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.7;
+    outline: none;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.tip-show__reply-input::placeholder {
+    color: var(--color-zinc-400);
+}
+
+.tip-show__reply-input:focus {
+    border-color: var(--color-zinc-500);
+    box-shadow: 0 0 0 3px rgb(24 24 27 / 0.08);
+}
+
+.tip-show__reply-form .tip-show__comment-error {
+    margin: 0;
+}
+
+.tip-show__reply-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+}
+
+.tip-show__reply-count {
+    color: var(--color-zinc-500);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.tip-show__reply-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.tip-show__reply-cancel,
+.tip-show__reply-submit {
+    min-height: 36px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 0 14px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        opacity 150ms ease;
+}
+
+.tip-show__reply-cancel {
+    border-color: var(--color-zinc-300);
+    background: #ffffff;
+    color: var(--color-zinc-700);
+}
+
+.tip-show__reply-cancel:hover {
+    background: var(--color-zinc-100);
+    color: var(--color-zinc-900);
+}
+
+.tip-show__reply-submit {
+    background: var(--color-zinc-900);
+    color: #ffffff;
+}
+
+.tip-show__reply-submit:hover:not(:disabled) {
+    background: var(--color-zinc-700);
+}
+
+.tip-show__reply-form-close:focus-visible,
+.tip-show__reply-cancel:focus-visible,
+.tip-show__reply-submit:focus-visible {
+    outline: 2px solid var(--color-zinc-400);
+    outline-offset: 2px;
+}
+
+.tip-show__reply-form-close:disabled,
+.tip-show__reply-cancel:disabled,
+.tip-show__reply-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 /* 댓글 본문 자리에 표시되는 인라인 수정 영역 */
@@ -398,5 +588,29 @@
 
     .tip-show__comment-actions {
         align-self: flex-end;
+    }
+
+    .tip-show__reply-list {
+        margin-left: 8px;
+        padding-left: 10px;
+    }
+
+    .tip-show__reply-form {
+        margin-left: 0;
+        padding: 12px;
+    }
+
+    .tip-show__reply-form-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tip-show__reply-form-actions {
+        align-self: stretch;
+    }
+
+    .tip-show__reply-cancel,
+    .tip-show__reply-submit {
+        flex: 1;
     }
 }

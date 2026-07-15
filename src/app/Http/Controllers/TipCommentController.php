@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Comments\CreateTipComment;
+use App\Actions\Comments\DeleteTipComment;
+use App\Actions\Comments\UpdateTipComment;
 use App\Http\Requests\Comments\SaveTipCommentRequest;
 use App\Models\Comment;
 use App\Models\Tip;
@@ -12,7 +14,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 
 final class TipCommentController extends Controller
 {
@@ -50,49 +51,16 @@ final class TipCommentController extends Controller
         ], 201);
     }
 
-    /**
-     * 작성자가 자신의 활성 댓글을 삭제 상태로 변경한다.
-     *
-     * 댓글 레코드는 구조 유지를 위해 남겨 두고, 활성 댓글 수를 다시 집계해
-     * 팁의 comment_count 캐시가 실제 데이터와 일치하도록 보정한다.
-     */
-    public function destroy(Request $request, Comment $comment): Response
-    {
-        // UI를 우회한 직접 요청도 차단할 수 있도록 서버에서 작성자를 확인한다.
-        abort_unless(
-            $request->user()?->id === $comment->user_id,
-            403,
-        );
 
-        DB::transaction(function () use ($comment): void {
-            /** @var Comment $targetComment */
-            $targetComment = Comment::query()
-                ->lockForUpdate()
-                ->findOrFail($comment->id);
+    public function destroy(
+        Request $request,
+        Comment $comment,
+        DeleteTipComment $deleteTipComment,
+    ): Response {
+        /** @var User $actor */
+        $actor = $request->user();
 
-            /** @var Tip $tip */
-            $tip = Tip::query()
-                ->lockForUpdate()
-                ->findOrFail($targetComment->tip_id);
-
-            // 이미 삭제되거나 숨겨진 댓글은 상태를 다시 변경하지 않는다.
-            if ($targetComment->isActive()) {
-                $targetComment->update([
-                    'status' => Comment::STATUS_DELETED,
-                ]);
-            }
-
-            // 원댓글과 대댓글을 포함해 현재 남아 있는 활성 댓글 수를 다시 계산한다.
-            $activeCommentCount = Comment::query()
-                ->where('tip_id', $tip->id)
-                ->where('status', Comment::STATUS_ACTIVE)
-                ->count();
-
-            // 기존 캐시가 어긋나 있어도 실제 활성 댓글 수로 함께 보정한다.
-            $tip->update([
-                'comment_count' => $activeCommentCount,
-            ]);
-        });
+        $deleteTipComment(comment: $comment, actor: $actor);
 
         return response()->noContent();
     }
@@ -101,25 +69,57 @@ final class TipCommentController extends Controller
     public function update(
         SaveTipCommentRequest $request,
         Comment $comment,
+        UpdateTipComment $updateTipComment,
     ): JsonResponse {
-        abort_unless(
-            $request->user()?->id === $comment->user_id,
-            403,
-        );
-        abort_unless(
-            $comment->isActive(),
-            409,
-        );
+        /** @var User $actor */
+        $actor = $request->user();
 
+        /** @var array{body: string} $validated */
         $validated = $request->validated();
 
-        $comment->update([
-            'body' => $validated['body'],
-        ]);
+        $updatedComment = $updateTipComment(
+            comment: $comment,
+            actor: $actor,
+            body: $validated['body'],
+        );
 
         return response()->json([
-            'comment_id' => $comment->id,
-            'body' => $comment->body,
+            'comment_id' => $updatedComment->id,
+            'body' => $updatedComment->body,
         ]);
+    }
+
+    /**
+     * 로그인 사용자가 선택한 댓글에 대댓글을 등록
+     *
+     * @param  SaveTipCommentRequest  $request  인증 및 본문 검증이 완료된 요청
+     * @param  Comment  $comment  route model binding으로 조회된 실제 답글 대상 댓글
+     * @param  CreateTipComment  $createTipComment  댓글 생성 Action
+     * @return JsonResponse 생성된 대댓글 식별자와 관계 정보
+     */
+    public function storeReply(
+        SaveTipCommentRequest $request,
+        Comment $comment,
+        CreateTipComment $createTipComment,
+    ): JsonResponse {
+        $author = $request->user();
+        $validated = $request->validated();
+        $tip = $comment->tip()->firstOrFail();
+
+        // 조회 권한이 없는 팁에 답글을 다는 것을 차단
+        $this->authorize('view', $tip);
+
+        $reply = $createTipComment(
+            tip: $tip,
+            author: $author,
+            body: $validated['body'],
+            replyTo: $comment,
+        );
+
+        return response()->json([
+            'comment_id' => $reply->id,
+            'parent_id' => $reply->parent_id,
+            'reply_to_id' => $reply->reply_to_id,
+        ], 201);
     }
 }

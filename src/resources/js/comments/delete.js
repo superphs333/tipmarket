@@ -5,13 +5,15 @@ import { getCsrfToken } from './http.js';
  *
  * @param {{
  *     section: Element,
- *     loadComments: () => Promise<void>
+ *     loadComments: (options?: {url?: string|URL}) => Promise<void>,
+ *     getCurrentUrl: () => string|URL
  * }} options 삭제 요청과 목록 갱신에 필요한 값
  * @return {void}
  */
 export const initializeCommentDeletion = ({
     section,
     loadComments,
+    getCurrentUrl,
 }) => {
     // 같은 댓글에 삭제 요청이 중복 전송되지 않도록 처리 중인 ID를 보관
     const deletingCommentIds = new Set();
@@ -43,7 +45,10 @@ export const initializeCommentDeletion = ({
                 throw new Error(`댓글 삭제 실패: ${response.status}`);
             }
 
-            await loadComments();
+            // 두 번째 댓글 페이지에서 삭제해도 현재 목록 위치를 유지한다.
+            await loadComments({
+                url: getCurrentUrl(),
+            });
         } catch {
             window.alert('댓글을 삭제하지 못했습니다. 잠시 후 다시 시도해주세요.');
             deleteButton.disabled = false;

@@ -19,7 +19,10 @@
  *     indexUrl: string,
  *     listContainer: Element
  * }} options 댓글 목록 초기화에 필요한 요소와 URL
- * @return {{loadComments: LoadComments}} 다른 댓글 기능이 사용할 목록 조회 함수
+ * @return {{
+ *     loadComments: LoadComments,
+ *     getCurrentUrl: () => string|URL
+ * }} 다른 댓글 기능이 사용할 목록 조회 상태
  */
 export const initializeCommentList = ({
     section, // 댓글 기능 전체를 감싸는 요소
@@ -27,6 +30,9 @@ export const initializeCommentList = ({
     listContainer, // 서버가 반환한 댓글 목록 HTML을 출력할 영역 (이요소의 innerHTML 이 교체됨)
 }) => {
     const countElement = section.querySelector('[data-comment-count]');
+    const loadErrorTemplate = section.querySelector(
+        '[data-comment-load-error-template]',
+    );
 
     /**
      * 현재 진행 중인 댓글 목록 요청
@@ -37,6 +43,7 @@ export const initializeCommentList = ({
      * @type {AbortController|null}
      */
     let activeListRequest = null;
+    let currentUrl = indexUrl;
 
     /**
      * 댓글 목록 조회 실패 화면을 출력
@@ -44,15 +51,19 @@ export const initializeCommentList = ({
      * @return {void}
      */
     const renderLoadError = () => {
-        listContainer.innerHTML = `
-            <div class="tip-show__comment-load-error" role="alert">
-                <p>댓글을 불러오지 못했습니다.</p>
+        const errorElement = loadErrorTemplate instanceof HTMLTemplateElement
+            ? loadErrorTemplate.content.firstElementChild?.cloneNode(true)
+            : null;
 
-                <button type="button" data-comment-retry>
-                    다시 시도
-                </button>
-            </div>
-        `;
+        // 템플릿 누락 시에도 사용자가 실패 상태를 알 수 있도록 문구를 남긴다.
+        if (!(errorElement instanceof HTMLElement)) {
+            listContainer.textContent = '댓글을 불러오지 못했습니다.';
+
+            return;
+        }
+
+        // 기존 로딩 또는 댓글 목록을 템플릿에서 복제한 재시도 UI로 교체한다.
+        listContainer.replaceChildren(errorElement);
     };
 
     /**
@@ -122,6 +133,7 @@ export const initializeCommentList = ({
 
             // 서버가 Blade로 렌더링한 댓글 목록으로 교체
             listContainer.innerHTML = html;
+            currentUrl = url;
 
             // 목록과 함께 전달받은 서버 기준 댓글 수를 반영
             syncCommentCount();
@@ -220,5 +232,8 @@ export const initializeCommentList = ({
         }
     });
 
-    return { loadComments };
+    return {
+        loadComments,
+        getCurrentUrl: () => currentUrl,
+    };
 };

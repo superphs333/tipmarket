@@ -98,27 +98,37 @@ Route::middleware(['auth', 'verified'])
     });
 
 /**
- * 팁 댓글
+ * 팁 댓글 기능
  *
- * 목록은 비회원도 조회할 수 있다.
- * 등록은 로그인 사용자만 가능하며 이메일 인증은 요구하지 않는다.
  */
+
 Route::get('/tip/{tip}/comments', [TipCommentController::class, 'index'])
     ->can('view', 'tip')
     ->name('tips.comments.index');
 
+// 원댓글을 등록
 Route::post('/tip/{tip}/comments', [TipCommentController::class, 'store'])
     ->middleware('auth')
     ->can('view', 'tip')
     ->name('tips.comments.store');
 
-Route::delete('/comments/{comment}', [TipCommentController::class, 'destroy'])
+// 답글 대상 
+Route::post('/comments/{comment}/replies', [
+    TipCommentController::class,
+    'storeReply',
+])
     ->middleware('auth')
-    ->name('comments.destroy');
+    ->name('comments.replies.store');
 
+// 수정
 Route::patch('/comments/{comment}', [TipCommentController::class, 'update'])
     ->middleware('auth')
     ->name('comments.update');
+
+// 삭제
+Route::delete('/comments/{comment}', [TipCommentController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('comments.destroy');
 
 // 프론트 Tip 상세
 Route::get('/tip/{tip}', [TipController::class, 'show'])

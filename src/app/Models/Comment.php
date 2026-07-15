@@ -96,7 +96,8 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')
-            ->orderBy('created_at');
+            ->orderBy('created_at')
+            ->orderBy('id');
     }
 
     // 실제 답글 대상 댓글. 멘션/답글 표시용으로 parent와 다를 수 있다.

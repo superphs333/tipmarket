@@ -28,9 +28,9 @@ final class TipCommentQuery
     public function paginate(Tip $tip): LengthAwarePaginator
     {
         return $tip->rootComments()
-            ->with([
-                'user:id,name',
-            ])
+            ->with(['user:id,name'
+            , 'replies.user:id,name'
+            , 'replies.replyTo.user:id,name'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate(self::PER_PAGE);

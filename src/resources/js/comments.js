@@ -2,6 +2,7 @@ import { initializeCommentCreation } from './comments/create.js';
 import { initializeCommentDeletion } from './comments/delete.js';
 import { initializeCommentEditing } from './comments/edit.js';
 import { initializeCommentList } from './comments/list.js';
+import { initializeCommentReplies } from './comments/reply.js';
 
 /**
  * 팁 상세 화면의 댓글 기능을 초기화
@@ -13,8 +14,9 @@ import { initializeCommentList } from './comments/list.js';
  * 1. Blade가 전달한 댓글 목록/등록 URL 확인
  * 2. 댓글 목록이 출력될 컨테이너 확인
  * 3. 목록 모듈 초기화 및 loadComments 획득
- * 4. 등록/수정/삭제 모듈 초기화
- * 5. 최초 댓글 목록 조회
+ * 4. 원댓글 등록과 대댓글 등록 모듈 초기화
+ * 5. 수정/삭제 모듈 초기화
+ * 6. 최초 댓글 목록 조회
  *
  * @param {Element} section 댓글 섹션 (section data-tip-comments 속성을 가진 댓글 전체 영역)
  * @return {void}
@@ -40,7 +42,7 @@ const initializeTipComments = (section) => {
     /**
      * 댓글 목록 모듈을 초기화
      */
-    const { loadComments } = initializeCommentList({
+    const { loadComments, getCurrentUrl } = initializeCommentList({
         section, // 페이지네이션 및 재시도 클릭 이벤트 위임에 사용
         indexUrl, // 기본 댓글 목록 조회 주소
         listContainer, // 조회한 댓글 HTML을 출력할 영역
@@ -56,6 +58,18 @@ const initializeTipComments = (section) => {
     });
 
     /**
+     * 대댓글 입력과 등록 기능을 초기화한다.
+     *
+     * 로그인 화면에만 존재하는 Blade template을 reply 모듈이 확인하므로
+     * 비회원 화면에서도 별도의 분기 없이 안전하게 초기화할 수 있다.
+     */
+    initializeCommentReplies({
+        section,
+        loadComments,
+        getCurrentUrl,
+    });
+
+    /**
      * 댓글 인라인 수정 기능 초기화
      */
     initializeCommentEditing({ section });
@@ -66,6 +80,7 @@ const initializeTipComments = (section) => {
     initializeCommentDeletion({
         section,
         loadComments,
+        getCurrentUrl,
     });
 
     // 상세 화면 진입 시 최신 댓글 첫 페이지를 최초 조회
