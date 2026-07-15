@@ -18,6 +18,19 @@
         </nav>
 
         <div class="flex items-center gap-2 text-sm font-medium">
+            <flux:modal.trigger name="global-search">
+                <button
+                    type="button"
+                    class="front-header__search-button"
+                    aria-label="검색 열기"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="m16.5 16.5 4 4"></path>
+                    </svg>
+                </button>
+            </flux:modal.trigger>
+
             @auth
                 <a href="{{ route('tips.create') }}" class="rounded-md bg-zinc-900 px-3 py-2 text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200" wire:navigate>
                     팁 작성

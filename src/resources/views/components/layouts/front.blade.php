@@ -6,6 +6,7 @@
     <body class="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
         <div class="flex min-h-screen flex-col">
             <x-front.header />
+            <x-front.search-modal />
 
             <main class="flex-1">
                 {{ $slot }}
