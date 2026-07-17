@@ -4,6 +4,8 @@
     'maxCount' => null,
     'name' => 'tag_names',
     'selected' => [],
+    'allowCreate' => true,
+    'variant' => 'default',
 ])
 
 <div {{ $attributes }}>
@@ -13,5 +15,7 @@
         :name="$name"
         :max-count="$maxCount"
         :selected="$selected"
+        :allow-create="$allowCreate"
+        :variant="$variant"
     />
 </div>
