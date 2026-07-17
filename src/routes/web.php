@@ -7,6 +7,7 @@ use App\Http\Controllers\TipBookmarkController;
 use App\Http\Controllers\TipCommentController;
 use App\Http\Controllers\TipController;
 use App\Http\Controllers\TipLikeController;
+use App\Http\Controllers\TipSearchController;
 use App\Models\Role;
 use App\Models\Tip;
 use Illuminate\Support\Facades\Route;
@@ -134,5 +135,11 @@ Route::delete('/comments/{comment}', [TipCommentController::class, 'destroy'])
 Route::get('/tip/{tip}', [TipController::class, 'show'])
     ->can('view', 'tip')
     ->name('tips.show');
+
+/**
+ * 검색
+ */
+Route::get('/tips/search', TipSearchController::class) 
+    ->name('tips.search');
 
 require __DIR__.'/settings.php';

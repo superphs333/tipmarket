@@ -23,7 +23,13 @@
             </flux:modal.close>
         </header>
 
-        <div class="front-search-modal__form" role="search">
+        <form 
+            class="front-search-modal__form"
+            method="GET"
+            action="/tips/search"
+            role="search"
+            data-search-form
+            >
             <label class="sr-only" for="global-search-query">검색어</label>
             <input
                 id="global-search-query"
@@ -34,10 +40,11 @@
                 autocomplete="off"
                 autocapitalize="off"
                 spellcheck="false"
+                data-search-input
             >
 
             <button
-                type="button"
+                type="submit"
                 class="front-search-modal__submit"
                 aria-label="검색 실행"
             >
@@ -46,6 +53,6 @@
                     <path d="m16.5 16.5 4 4"></path>
                 </svg>
             </button>
-        </div>
+        </form>
     </section>
 </flux:modal>
