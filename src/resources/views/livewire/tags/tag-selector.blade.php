@@ -142,10 +142,7 @@
 
     {{-- 선택된 태그 영역 --}}
     <div class="space-y-2">
-        <div class="flex items-center justify-between gap-3">
-            <flux:text class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                선택된 태그
-            </flux:text>
+        <div class="flex items-center justify-end gap-3">
             {{-- 현재 선택 개수 / 최대 선택 개수 --}}
             <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">
                 @if ($maxCount === null)
