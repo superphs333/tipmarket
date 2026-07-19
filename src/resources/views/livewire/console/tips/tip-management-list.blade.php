@@ -142,9 +142,12 @@
 
                                         <span class="text-zinc-300 dark:text-zinc-700">|</span>
 
-                                        <span class="font-medium text-zinc-500 dark:text-zinc-400">
+                                        <a
+                                            href="{{ route('tips.show', $tip) }}"
+                                            class="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                                        >
                                             본문이동
-                                        </span>
+                                        </a>
                                     </div>
                                 </div>
                             </td>

@@ -5,6 +5,21 @@
     focusable
     class="global-search-modal"
 >
+    @php
+        $popularKeywords = [
+            '청소',
+            '수납 정리',
+            '에어컨 청소',
+            '냉장고 정리',
+            '세탁기 청소',
+            '욕실 곰팡이',
+            '주방 정리',
+            '옷장 정리',
+            '생활비 절약',
+            '분리수거',
+        ];
+    @endphp
+
     <section class="front-search-modal" aria-labelledby="global-search-title">
         <header class="front-search-modal__header">
             <div>
@@ -54,5 +69,32 @@
                 </svg>
             </button>
         </form>
+
+        <!-- 인기 검색어 영역 시작 -->
+        <section class="front-search-modal__popular" aria-labelledby="popular-search-keywords-title">
+            <h3 id="popular-search-keywords-title" class="front-search-modal__popular-title">
+                인기 검색어
+            </h3>
+
+            <div class="front-search-modal__popular-table-wrap">
+                <table class="front-search-modal__popular-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">순위</th>
+                            <th scope="col">키워드</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($popularKeywords as $keyword)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $keyword }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- 인기 검색어 영역 끝 -->
     </section>
 </flux:modal>

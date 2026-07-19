@@ -202,6 +202,62 @@ select:focus[data-flux-control] {
         height: 23px;
     }
 
+    .front-search-modal__popular {
+        margin-top: 24px;
+    }
+
+    .front-search-modal__popular-title {
+        margin: 0 0 12px;
+        color: var(--color-zinc-900);
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .front-search-modal__popular-table-wrap {
+        border: 1px solid var(--color-zinc-200);
+        border-radius: 10px;
+    }
+
+    .front-search-modal__popular-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        color: var(--color-zinc-700);
+        font-size: 15px;
+        line-height: 1.25;
+        text-align: left;
+    }
+
+    .front-search-modal__popular-table th,
+    .front-search-modal__popular-table td {
+        padding: 7px 20px;
+    }
+
+    .front-search-modal__popular-table th:first-child,
+    .front-search-modal__popular-table td:first-child {
+        width: 108px;
+    }
+
+    .front-search-modal__popular-table thead {
+        border-bottom: 1px solid var(--color-zinc-200);
+        background: var(--color-zinc-50);
+        color: var(--color-zinc-600);
+        font-size: 13px;
+    }
+
+    .front-search-modal__popular-table th {
+        font-weight: 700;
+    }
+
+    .front-search-modal__popular-table tbody td:first-child {
+        color: var(--color-zinc-500);
+    }
+
+    .front-search-modal__popular-table tbody tr:hover {
+        background: var(--color-zinc-50);
+    }
+
     @media (max-width: 640px) {
         .global-search-modal {
             width: min(calc(100vw - 24px), 1120px);
@@ -242,6 +298,20 @@ select:focus[data-flux-control] {
         .front-search-modal__submit {
             width: 52px;
         }
+
+        .front-search-modal__popular {
+            margin-top: 20px;
+        }
+
+        .front-search-modal__popular-table th,
+        .front-search-modal__popular-table td {
+            padding: 7px 14px;
+        }
+
+        .front-search-modal__popular-table th:first-child,
+        .front-search-modal__popular-table td:first-child {
+            width: 72px;
+        }
     }
 
     .dark .front-header__search-button,
@@ -268,6 +338,32 @@ select:focus[data-flux-control] {
 
     .dark .front-search-modal__title {
         color: #ffffff;
+    }
+
+    .dark .front-search-modal__popular-title {
+        color: var(--color-zinc-100);
+    }
+
+    .dark .front-search-modal__popular-table-wrap {
+        border-color: var(--color-zinc-700);
+    }
+
+    .dark .front-search-modal__popular-table {
+        color: var(--color-zinc-300);
+    }
+
+    .dark .front-search-modal__popular-table thead,
+    .dark .front-search-modal__popular-table tbody tr:hover {
+        background: var(--color-zinc-900);
+    }
+
+    .dark .front-search-modal__popular-table thead {
+        border-color: var(--color-zinc-700);
+        color: var(--color-zinc-400);
+    }
+
+    .dark .front-search-modal__popular-table tbody td:first-child {
+        color: var(--color-zinc-400);
     }
 
     .dark .front-search-modal__input {

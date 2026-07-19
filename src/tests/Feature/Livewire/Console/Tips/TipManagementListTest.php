@@ -79,6 +79,15 @@ test('changing the sort resets the list to the first page', function () {
         ->assertSet('paginators.page', 1);
 });
 
+test('tip body link points to the front detail page', function () {
+    $user = User::factory()->create();
+    $tip = createTip($user);
+
+    Livewire::test(TipManagementList::class)
+        ->assertSee('본문이동')
+        ->assertSeeHtml('href="'.route('tips.show', $tip).'"');
+});
+
 test('selected tips can be published in bulk', function () {
     $user = User::factory()->create();
     $firstTip = createTip($user, ['status' => Tip::STATUS_DRAFT]);
