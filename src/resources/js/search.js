@@ -3,6 +3,8 @@
  */
 const SEARCH_FORM_SELECTOR = '[data-search-form]';
 const SEARCH_INPUT_SELECTOR = '[data-search-input]';
+const SEARCH_SORT_FORM_SELECTOR = '[data-search-sort-form]';
+const SEARCH_SORT_SELECT_SELECTOR = '[data-search-sort-select]';
 
 
 /**
@@ -93,5 +95,36 @@ function handleSearchInput(event) {
     eventTarget.setCustomValidity('');
 }
 
+/**
+ * 프론트 검색 결과의 정렬값 변경을 처리한다.
+ *
+ * 선택한 정렬값과 정렬 폼의 hidden 검색 조건을 GET 방식으로 전달한다.
+ * requestSubmit()을 사용해 브라우저의 기본 폼 제출 흐름을 유지한다.
+ *
+ * @param {Event} event 정렬 select에서 발생한 change 이벤트.
+ * @returns {void}
+ */
+function handleSearchSortChange(event) {
+    const eventTarget = event.target;
+
+    // document 전체의 change 이벤트 중 검색 결과 정렬 select만 처리한다.
+    if (! (eventTarget instanceof HTMLSelectElement)) {
+        return;
+    }
+
+    if (! eventTarget.matches(SEARCH_SORT_SELECT_SELECTOR)) {
+        return;
+    }
+
+    const form = eventTarget.closest(SEARCH_SORT_FORM_SELECTOR);
+
+    if (! (form instanceof HTMLFormElement)) {
+        return;
+    }
+
+    form.requestSubmit();
+}
+
 document.addEventListener('submit', handleSearchSubmit);
 document.addEventListener('input', handleSearchInput);
+document.addEventListener('change', handleSearchSortChange);

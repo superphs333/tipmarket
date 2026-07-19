@@ -36,6 +36,11 @@ trait ManagesTipListFilters
     public string $keyword = '';
 
     /**
+     * 현재 Tip 목록 정렬값.
+     */
+    public string $sort = 'latest';
+
+    /**
      * 검색 버튼 클릭 시 현재 조건으로 첫 페이지부터 다시 조회
      */
     public function search(): void
@@ -57,6 +62,7 @@ trait ManagesTipListFilters
         $this->createdFrom = '';
         $this->createdTo = '';
         $this->keyword = '';
+        $this->sort = 'latest';
 
         $this->resetPage();
     }
@@ -78,6 +84,15 @@ trait ManagesTipListFilters
             'created_from' => $this->createdFrom,
             'created_to' => $this->createdTo,
             'keyword' => $this->keyword,
+            'sort' => $this->sort,
         ];
+    }
+
+    /**
+     * 정렬값이 변경되면 목록을 첫 페이지부터 다시 조회.
+     */
+    public function updatedSort(): void
+    {
+        $this->resetPage();
     }
 }

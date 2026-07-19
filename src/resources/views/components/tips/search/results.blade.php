@@ -1,82 +1,152 @@
 @props([
-    // 백엔드 연결 전까지 부모 화면이 전달하는 실제 결과는 사용하지 않는다.
-    'tips' => null,
+    'tips',
 ])
-
-@php
-    // 프론트 검색 결과 UI 확인용 임시 데이터입니다.
-    // 백엔드 연결 단계에서 실제 검색 결과 데이터로 교체합니다.
-    $previewTips = [
-        [
-            'title' => '욕실 물때를 10분 안에 정리하는 청소 순서',
-            'category' => '청소',
-            'author' => '정리생활연구소',
-            'author_initial' => '정',
-            'date' => '2026.07.19',
-            'summary' => '세면대와 수전의 물때를 순서대로 제거하고 물자국을 줄이는 청소 방법입니다.',
-            'tags' => ['욕실', '식초', '초보자'],
-            'comment_count' => 8,
-            'like_count' => 32,
-            'bookmark_count' => 14,
-            'thumbnail_url' => null,
-        ],
-        [
-            'title' => '전자레인지 찌든때를 스팀으로 청소하는 방법',
-            'category' => '청소',
-            'author' => '주방실험실',
-            'author_initial' => '주',
-            'date' => '2026.07.18',
-            'summary' => '물컵에서 발생한 수증기로 내부 오염을 불린 뒤 간단하게 닦아내는 방법입니다.',
-            'tags' => ['전자레인지', '냄새제거'],
-            'comment_count' => 5,
-            'like_count' => 24,
-            'bookmark_count' => 11,
-            'thumbnail_url' => null,
-        ],
-        [
-            'title' => '청소도구 보관 위치만 바꿔도 쉬워지는 정리법',
-            'category' => '생활',
-            'author' => '살림한스푼',
-            'author_initial' => '살',
-            'date' => '2026.07.17',
-            'summary' => '사용 장소 가까이에 청소도구를 나눠 배치해 청소 시작 장벽을 낮추는 방법입니다.',
-            'tags' => ['정리정돈', '청소도구', '수납'],
-            'comment_count' => 12,
-            'like_count' => 41,
-            'bookmark_count' => 19,
-            'thumbnail_url' => null,
-        ],
-    ];
-@endphp
 
 <!-- Tip 검색 결과 시작 -->
 <section class="tip-search-results" aria-labelledby="tip-search-results-title">
     <!-- 검색 결과 헤더 시작 -->
     <header class="tip-search-results__header">
+        <!-- 검색 결과 제목 영역 -->
         <div>
-            <p class="tip-search-results__eyebrow">SEARCH RESULTS</p>
-            <h2 id="tip-search-results-title" class="tip-search-results__title">검색 결과</h2>
+            <p class="tip-search-results__eyebrow">
+                SEARCH RESULTS
+            </p>
+
+            <h2
+                id="tip-search-results-title"
+                class="tip-search-results__title"
+            >
+                검색 결과
+            </h2>
         </div>
 
-        <p class="tip-search-results__count">
-            {{ count($previewTips) }}개의 게시글
-        </p>
+        <!-- 검색 결과 정보와 정렬 영역 -->
+        <div class="tip-search-results__tools">
+            <!-- 현재 검색 결과 개수 -->
+            <p class="tip-search-results__count">
+                {{ number_format($tips->total()) }}개의 게시글
+            </p>
+
+            <!-- 프론트 검색 결과 정렬 폼 -->
+            <form
+                method="GET"
+                action="{{ route('tips.search') }}"
+                class="tip-search-results__sort-form"
+                data-search-sort-form
+            >
+                {{--
+                    정렬값을 변경해도 기존 검색어와 필터가 유지되도록
+                    현재 검색 조건을 hidden input으로 다시 전달한다.
+                --}}
+                @if (request()->filled('query'))
+                    <input
+                        type="hidden"
+                        name="query"
+                        value="{{ request('query') }}"
+                    >
+                @endif
+
+                @if (request()->filled('category'))
+                    <input
+                        type="hidden"
+                        name="category"
+                        value="{{ request('category') }}"
+                    >
+                @endif
+
+                @foreach ((array) request()->input('tag_names', []) as $tagName)
+                    <input
+                        type="hidden"
+                        name="tag_names[]"
+                        value="{{ $tagName }}"
+                    >
+                @endforeach
+
+                <label
+                    for="front-tip-sort"
+                    class="tip-search-results__sort-label"
+                >
+                    정렬
+                </label>
+
+                <select
+                    id="front-tip-sort"
+                    name="sort"
+                    class="tip-search-results__sort-select"
+                    data-search-sort-select
+                >
+                    <option
+                        value="latest"
+                        @selected(request('sort', 'latest') === 'latest')
+                    >
+                        최신순
+                    </option>
+
+                    <option
+                        value="popular"
+                        @selected(request('sort') === 'popular')
+                    >
+                        조회순
+                    </option>
+
+                    <option
+                        value="likes"
+                        @selected(request('sort') === 'likes')
+                    >
+                        좋아요순
+                    </option>
+
+                    <option
+                        value="bookmarks"
+                        @selected(request('sort') === 'bookmarks')
+                    >
+                        북마크순
+                    </option>
+                </select>
+
+                <!-- JavaScript를 사용할 수 없는 환경의 정렬 실행 버튼 -->
+                <noscript>
+                    <button
+                        type="submit"
+                        class="tip-search-results__sort-submit"
+                    >
+                        적용
+                    </button>
+                </noscript>
+            </form>
+        </div>
     </header>
     <!-- 검색 결과 헤더 끝 -->
 
     <!-- 검색 결과 목록 시작 -->
     <div class="tip-search-results__list">
-        @forelse ($previewTips as $tip)
+        @forelse ($tips as $tip)
+            @php
+                // 검색 카드에서 반복 사용하는 표시값만 View에서 간단히 가공한다.
+                $tipUrl = route('tips.show', $tip);
+                $thumbnailUrl = $tip->thumbnail?->publicUrl();
+                $authorName = $tip->user?->name ?? '작성자';
+                $authorInitial = Illuminate\Support\Str::substr($authorName, 0, 1);
+                $summary = (string) Illuminate\Support\Str::of($tip->content)
+                    ->stripTags()
+                    ->squish()
+                    ->limit(160);
+            @endphp
+
             <!-- 검색 결과 항목 시작 -->
             <article class="tip-search-result-card">
                 <!-- Tip 썸네일 -->
                 <a
-                    href="#"
+                    href="{{ $tipUrl }}"
                     class="tip-search-result-card__thumbnail"
-                    aria-label="{{ $tip['title'] }} 상세 보기"
+                    aria-label="{{ $tip->title }} 상세 보기"
                 >
-                    @if ($tip['thumbnail_url'])
-                        <img src="{{ $tip['thumbnail_url'] }}" alt="{{ $tip['title'] }}" loading="lazy">
+                    @if ($thumbnailUrl)
+                        <img
+                            src="{{ $thumbnailUrl }}"
+                            alt="{{ $tip->title }} 썸네일"
+                            loading="lazy"
+                        >
                     @else
                         <span class="tip-search-result-card__thumbnail-placeholder" aria-hidden="true">
                             TIP
@@ -87,47 +157,49 @@
                 <!-- Tip 정보 영역 시작 -->
                 <div class="tip-search-result-card__body">
                     <span class="tip-search-result-card__category">
-                        {{ $tip['category'] }}
+                        {{ $tip->category?->name ?? '미분류' }}
                     </span>
 
                     <h3 class="tip-search-result-card__title">
-                        <a href="#">{{ $tip['title'] }}</a>
+                        <a href="{{ $tipUrl }}">{{ $tip->title }}</a>
                     </h3>
 
                     <!-- 작성자와 게시 정보 -->
                     <div class="tip-search-result-card__meta">
                         <span class="tip-search-result-card__author">
                             <span class="tip-search-result-card__avatar" aria-hidden="true">
-                                {{ $tip['author_initial'] }}
+                                {{ $authorInitial }}
                             </span>
-                            <span>{{ $tip['author'] }}</span>
+                            <span>{{ $authorName }}</span>
                         </span>
-                        <span>댓글 {{ number_format($tip['comment_count']) }}</span>
-                        <time datetime="{{ str_replace('.', '-', $tip['date']) }}">
-                            {{ $tip['date'] }}
+                        <span>댓글 {{ number_format($tip->comment_count) }}</span>
+                        <time datetime="{{ $tip->updated_at?->toDateString() }}">
+                            {{ $tip->updated_at?->format('Y.m.d') }}
                         </time>
                     </div>
 
                     <p class="tip-search-result-card__summary">
-                        {{ $tip['summary'] }}
+                        {{ $summary !== '' ? $summary : '내용 미리보기가 없습니다.' }}
                     </p>
 
                     <!-- 태그와 반응 정보 -->
                     <div class="tip-search-result-card__footer">
                         <div class="tip-search-result-card__tags" aria-label="게시글 태그">
-                            @foreach ($tip['tags'] as $tag)
-                                <span class="tip-search-result-card__tag">#{{ $tag }}</span>
-                            @endforeach
+                            @forelse ($tip->tags as $tag)
+                                <span class="tip-search-result-card__tag">#{{ $tag->name }}</span>
+                            @empty
+                                <span class="tip-search-result-card__tag">태그 없음</span>
+                            @endforelse
                         </div>
 
                         <div class="tip-search-result-card__engagement" aria-label="게시글 반응 수">
                             <span title="좋아요">
                                 <flux:icon.heart class="size-4" />
-                                {{ number_format($tip['like_count']) }}
+                                {{ number_format($tip->like_count) }}
                             </span>
                             <span title="북마크">
                                 <flux:icon.bookmark class="size-4" />
-                                {{ number_format($tip['bookmark_count']) }}
+                                {{ number_format($tip->bookmark_count) }}
                             </span>
                         </div>
                     </div>
@@ -147,5 +219,13 @@
         @endforelse
     </div>
     <!-- 검색 결과 목록 끝 -->
+
+    @if ($tips->hasPages())
+        <!-- 검색 결과 페이지네이션 시작 -->
+        <nav class="tip-search-results__pagination" aria-label="검색 결과 페이지 이동">
+            {{ $tips->onEachSide(1)->links() }}
+        </nav>
+        <!-- 검색 결과 페이지네이션 끝 -->
+    @endif
 </section>
 <!-- Tip 검색 결과 끝 -->

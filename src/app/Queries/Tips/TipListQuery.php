@@ -18,6 +18,15 @@ final class TipListQuery
 
     private TagNameNormalizer $tagNameNormalizer;
 
+    /**
+     * 허용하는 정렬값 목록.
+     *
+     * @var array<int, string>
+     */
+    private const SORTS = ['latest', 'popular', 'likes', 'bookmarks'];
+
+    private const DEFAULT_SORT = 'latest';
+
     public function __construct(
         ?FilterNormalizer $filterNormalizer = null,
         ?TagNameNormalizer $tagNameNormalizer = null,
@@ -48,9 +57,7 @@ final class TipListQuery
                 'category:id,name',
                 'tags:id,name',
                 'thumbnail',
-            ])
-            ->latest('updated_at');
-
+            ]);
         if ($filters['category_id'] !== null) {
             $query->where('category_id', $filters['category_id']);
         }
@@ -88,9 +95,9 @@ final class TipListQuery
                     });
             });
         }
+        $query = $this->applySort($query, $filters['sort']);
 
         return $query->paginate($perPage);
-
     }
 
     /**
@@ -105,7 +112,8 @@ final class TipListQuery
      *     audience: string|null,
      *     created_from: string|null,
      *     created_to: string|null,
-     *     keyword: string|null
+     *     keyword: string|null,
+     *     sort: string
      * }
      */
     private function normalizeFilters(array $filters): array
@@ -119,6 +127,30 @@ final class TipListQuery
             'created_from' => $this->filterNormalizer->date($filters['created_from'] ?? null),
             'created_to' => $this->filterNormalizer->date($filters['created_to'] ?? null),
             'keyword' => $this->filterNormalizer->keyword($filters['keyword'] ?? null),
+            'sort' => $this->filterNormalizer->allowedString($filters['sort'] ?? null, self::SORTS) ?? self::DEFAULT_SORT,
         ];
+    }
+
+    /**
+     * 허용된 정렬값에 맞춰 Tip 목록 순서를 적용한다.
+     *
+     * @param  Builder<Tip>  $query  검색 조건이 적용된 Tip 쿼리
+     * @param  string  $sort  정규화된 정렬값
+     * @return Builder<Tip> 정렬 조건이 추가된 Tip 쿼리
+     */
+    private function applySort(Builder $query, string $sort): Builder
+    {
+        // 외부 입력값을 컬럼명으로 직접 사용하지 않고,
+        // 허용된 정렬값을 실제 DB 컬럼으로 안전하게 변환한다.
+        $column = match ($sort) {
+            'popular' => 'view_count',
+            'likes' => 'like_count',
+            'bookmarks' => 'bookmark_count',
+            default => 'updated_at',
+        };
+
+        return $query
+            ->orderByDesc($column)
+            ->orderByDesc('id');
     }
 }

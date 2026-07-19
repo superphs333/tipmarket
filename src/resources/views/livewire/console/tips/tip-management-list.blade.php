@@ -16,12 +16,41 @@
             목록 성격과 현재 페이지 정보를 표시한다.
             실제 페이지 이동 UI는 하단 links()에 둔다.
         --}}
-        <div class="flex flex-col gap-2 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-3 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800 md:flex-row md:items-center md:justify-between">
+            <!-- 관리자 Tip 목록 정보 -->
             <div>
-                <div class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">팁 목록</div>
-                <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {{ number_format($tips->firstItem() ?? 0) }}-{{ number_format($tips->lastItem() ?? 0) }} / {{ number_format($tips->total()) }}
+                <div class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    팁 목록
                 </div>
+
+                <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    {{ number_format($tips->firstItem() ?? 0) }}-{{ number_format($tips->lastItem() ?? 0) }}
+                    /
+                    {{ number_format($tips->total()) }}
+                </div>
+            </div>
+
+            <!-- 관리자 Tip 목록 정렬 -->
+            <div class="flex items-center gap-2">
+                <label
+                    for="console-tip-sort"
+                    class="text-xs font-medium text-zinc-600 dark:text-zinc-300"
+                >
+                    정렬
+                </label>
+
+                <select
+                    id="console-tip-sort"
+                    wire:model.live="sort"
+                    wire:loading.attr="disabled"
+                    wire:target="sort"
+                    class="h-9 min-w-36 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-900/10 disabled:cursor-wait disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:focus:border-zinc-500"
+                >
+                    <option value="latest">최근 수정순</option>
+                    <option value="popular">조회순</option>
+                    <option value="likes">좋아요순</option>
+                    <option value="bookmarks">북마크순</option>
+                </select>
             </div>
         </div>
 

@@ -9,6 +9,15 @@
             action="{{ route('tips.search') }}"
         @endif
     >
+        @if ($context === 'front' && request()->filled('sort'))
+            <!-- 검색 조건을 다시 적용해도 현재 프론트 정렬값을 유지한다. -->
+            <input
+                type="hidden"
+                name="sort"
+                value="{{ request('sort') }}"
+            >
+        @endif
+
         <!-- 검색 조건 영역 시작 -->
         <div class="tip-search-fields">
             <!-- 카테고리 필터와 관리자 전용 필터 -->
