@@ -47,6 +47,7 @@ final class TipListQuery
                 'user:id,name,email',
                 'category:id,name',
                 'tags:id,name',
+                'thumbnail',
             ])
             ->latest('updated_at');
 

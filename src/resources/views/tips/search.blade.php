@@ -22,11 +22,14 @@
         <!-- 검색 페이지 헤더 끝 -->
 
         <!-- 검색 조건 영역 시작 -->
-        <x-tips.search.filter-form />
+        <x-tips.filters.form
+            context="front"
+            :categories="$categories"
+        />
         <!-- 검색 조건 영역 끝 -->
 
         <!-- 검색 결과 영역 시작 -->
-        <x-tips.search.results />
+        <x-tips.search.results :tips="$tips" />
         <!-- 검색 결과 영역 끝 -->
     </section>
     <!-- 검색 페이지 본문 끝 -->

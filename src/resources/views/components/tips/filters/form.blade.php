@@ -1,24 +1,47 @@
-@if ($context === 'console')
-    <!-- 관리자 Tip 검색 필터 시작 -->
-    <section class="tip-search-card">
-        <div class="tip-search-form">
-            <!-- 검색 조건 영역 시작 -->
-            <div class="tip-search-fields">
-                <!-- 카테고리, 노출, 상태 필터 -->
-                <div class="tip-search-top-row">
-                    <div class="tip-search-pair">
-                        <label for="tip-filter-category" class="tip-search-label">카테고리</label>
-                        <select id="tip-filter-category" wire:model="categoryId" class="tip-search-control">
-                            <option value="">전체</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+<!-- Tip 검색 필터 시작 -->
+<section class="tip-search-card">
+    <form
+        class="tip-search-form"
+        @if ($context === 'console')
+            wire:submit.prevent="search"
+        @else
+            method="GET"
+            action="{{ route('tips.search') }}"
+        @endif
+    >
+        <!-- 검색 조건 영역 시작 -->
+        <div class="tip-search-fields">
+            <!-- 카테고리 필터와 관리자 전용 필터 -->
+            <div class="tip-search-top-row">
+                <!-- 공통 카테고리 필터 -->
+                <div class="tip-search-pair">
+                    <label for="{{ $context }}-tip-filter-category" class="tip-search-label">카테고리</label>
+                    <select
+                        id="{{ $context }}-tip-filter-category"
+                        class="tip-search-control"
+                        @if ($context === 'console')
+                            wire:model="categoryId"
+                        @else
+                            name="category"
+                        @endif
+                    >
+                        <option value="">전체</option>
+                        @foreach ($categories as $category)
+                            <option
+                                value="{{ $category->id }}"
+                                @selected($context === 'front' && (string) request('category') === (string) $category->id)
+                            >
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
+                @if ($context === 'console')
+                    <!-- 관리자 전용 노출 필터 -->
                     <div class="tip-search-pair">
-                        <label for="tip-filter-audience" class="tip-search-label">노출</label>
-                        <select id="tip-filter-audience" wire:model="audience" class="tip-search-control">
+                        <label for="console-tip-filter-audience" class="tip-search-label">노출</label>
+                        <select id="console-tip-filter-audience" wire:model="audience" class="tip-search-control">
                             <option value="">노출</option>
                             @foreach ($audienceOptions as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
@@ -26,21 +49,24 @@
                         </select>
                     </div>
 
+                    <!-- 관리자 전용 상태 필터 -->
                     <div class="tip-search-pair">
-                        <label for="tip-filter-status" class="tip-search-label">상태</label>
-                        <select id="tip-filter-status" wire:model="status" class="tip-search-control">
+                        <label for="console-tip-filter-status" class="tip-search-label">상태</label>
+                        <select id="console-tip-filter-status" wire:model="status" class="tip-search-control">
                             <option value="">상태</option>
                             @foreach ($statusOptions as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
-                </div>
+                @endif
+            </div>
 
-                <!-- 태그 필터 -->
-                <div class="tip-search-row">
-                    <div class="tip-search-label">태그</div>
-                    <div class="tip-search-tag-selector">
+            <!-- 공통 태그 필터 -->
+            <div class="tip-search-row">
+                <div class="tip-search-label">태그</div>
+                <div class="tip-search-tag-selector">
+                    @if ($context === 'console')
                         <livewire:tags.tag-selector
                             wire:model="tagNames"
                             label=""
@@ -49,10 +75,21 @@
                             :allow-create="false"
                             variant="compact"
                         />
-                    </div>
+                    @else
+                        <x-tags.selector
+                            label=""
+                            placeholder="태그 이름 검색"
+                            name="tag_names"
+                            :selected="(array) request()->input('tag_names', [])"
+                            :allow-create="false"
+                            variant="compact"
+                        />
+                    @endif
                 </div>
+            </div>
 
-                <!-- 기간 필터 -->
+            @if ($context === 'console')
+                <!-- 관리자 전용 기간 필터 -->
                 <div class="tip-search-row">
                     <div class="tip-search-label">기간</div>
                     <div class="tip-search-range">
@@ -61,32 +98,44 @@
                         <input type="date" wire:model="createdTo" class="tip-search-control">
                     </div>
                 </div>
+            @endif
 
-                <!-- 검색어 필터 -->
-                <div class="tip-search-row">
-                    <label for="tip-filter-keyword" class="tip-search-label">검색어</label>
-                    <input
-                        id="tip-filter-keyword"
-                        type="search"
+            <!-- 공통 검색어 필터 -->
+            <div class="tip-search-row">
+                <label for="{{ $context }}-tip-filter-keyword" class="tip-search-label">검색어</label>
+                <input
+                    id="{{ $context }}-tip-filter-keyword"
+                    type="search"
+                    placeholder="검색어 입력(제목/작성자)"
+                    class="tip-search-control"
+                    @if ($context === 'console')
                         wire:model="keyword"
-                        wire:keydown.enter.prevent="search"
-                        placeholder="검색어 입력(제목/작성자)"
-                        class="tip-search-control"
-                    >
-                </div>
+                    @else
+                        name="query"
+                        value="{{ request('query') }}"
+                    @endif
+                >
             </div>
-            <!-- 검색 조건 영역 끝 -->
+        </div>
+        <!-- 검색 조건 영역 끝 -->
 
-            <!-- 검색 액션 영역 -->
-            <div class="tip-search-actions">
+        <!-- 검색 액션 영역 시작 -->
+        <div class="tip-search-actions">
+            @if ($context === 'console')
                 <flux:button type="button" variant="outline" wire:click="resetFilters">
                     초기화
                 </flux:button>
-                <flux:button type="button" variant="primary" wire:click="search">
-                    검색
+            @else
+                <flux:button :href="route('tips.search')" variant="outline">
+                    초기화
                 </flux:button>
-            </div>
+            @endif
+
+            <flux:button type="submit" variant="primary">
+                검색
+            </flux:button>
         </div>
-    </section>
-    <!-- 관리자 Tip 검색 필터 끝 -->
-@endif
+        <!-- 검색 액션 영역 끝 -->
+    </form>
+</section>
+<!-- Tip 검색 필터 끝 -->
